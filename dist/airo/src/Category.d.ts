@@ -1,0 +1,12 @@
+import { Func } from "./Func";
+import { Prod } from './Prod';
+export declare type Zero = never;
+export declare type One = {};
+export declare const absurd: <TRange>() => Func<never, TRange>;
+export declare const unit: <TDomain>() => Func<TDomain, One>;
+export declare const identity: <T>() => Func<T, T>;
+export declare const constant: <T, U>(val: U) => Func<T, U>;
+export declare const powerOfZero: <A>() => Func<Func<never, A>, One>;
+export declare const powerOfZeroInv: <A>() => Func<One, Func<never, A>>;
+export declare const prodIdentity: <A>() => Func<Prod<A, One>, A>;
+export declare const prodIdentityInv: <A>() => Func<A, Prod<A, One>>;

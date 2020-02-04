@@ -1,0 +1,15 @@
+{
+    "name": "@paperweight/contracts",
+    "version": "1.0.0",
+    "scripts": {
+        "build": "tsc"
+    },
+    "main": "lib/index.js",
+    "directories": {
+        "lib": "lib"
+    },
+    "dependencies": {
+        "@paperweight/enums": "^1.0.0",
+        "@paperweight/utility": "^1.0.0"
+    }
+}

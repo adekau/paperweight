@@ -1,0 +1,11 @@
+{
+    "name": "@paperweight/enums",
+    "version": "1.0.0",
+    "main": "lib/index.js",
+    "directories": {
+        "lib": "lib"
+    },
+    "scripts": {
+        "build": "tsc"
+    }
+}

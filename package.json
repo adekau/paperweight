@@ -1,0 +1,21 @@
+{
+    "name": "paperweight",
+    "license": "MIT",
+    "scripts": {
+        "build": "lerna run build"
+    },
+    "private": true,
+    "devDependencies": {
+        "@types/jasmine": "^3.5.2",
+        "@types/node": "^13.7.0",
+        "codecov": "^3.6.1",
+        "jasmine-core": "^3.5.0",
+        "karma": "^4.0.0",
+        "karma-chrome-launcher": "^3.1.0",
+        "karma-jasmine": "^2.0.0",
+        "karma-spec-reporter": "^0.0.32",
+        "karma-typescript": "^4.0.0",
+        "lerna": "^3.20.2",
+        "typescript": "^3.7.5"
+    }
+}
