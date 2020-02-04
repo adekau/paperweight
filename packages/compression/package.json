@@ -1,6 +1,6 @@
 {
     "name": "@paperweight/compression",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "main": "index.js",
     "directories": {
         "lib": "lib"
@@ -9,9 +9,9 @@
         "build": "tsc"
     },
     "dependencies": {
-        "@paperweight/contracts": "^1.0.3",
-        "@paperweight/enums": "^1.0.3",
-        "@paperweight/utility": "^1.0.3"
+        "@paperweight/contracts": "^1.0.4",
+        "@paperweight/enums": "^1.0.4",
+        "@paperweight/utility": "^1.0.4"
     },
     "gitHead": "e4a1d300fcf31251e12d8a637fbec2a9aa6e8c15"
 }
