@@ -12,5 +12,6 @@
         "@paperweight/contracts": "^1.0.2",
         "@paperweight/enums": "^1.0.2",
         "@paperweight/utility": "^1.0.2"
-    }
+    },
+    "gitHead": "5025bc435e80e4af5afed1f65bfedb528cc68fd0"
 }

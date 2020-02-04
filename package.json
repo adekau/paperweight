@@ -4,7 +4,6 @@
     "scripts": {
         "build": "lerna run build"
     },
-    "private": true,
     "devDependencies": {
         "@types/jasmine": "^3.5.2",
         "@types/node": "^13.7.0",
