@@ -1,6 +1,6 @@
 {
     "name": "@paperweight/database",
-    "version": "1.0.5",
+    "version": "1.0.0",
     "description": "> TODO: description",
     "author": "Alexander J Dekau <alexander.j.dekau@wmich.edu>",
     "homepage": "",
@@ -22,10 +22,10 @@
         "test": "echo \"Error: run tests from root\" && exit 1"
     },
     "dependencies": {
-        "@paperweight/airo": "^1.0.5",
-        "@paperweight/contracts": "^1.0.5",
-        "@paperweight/enums": "^1.0.5",
-        "@paperweight/utility": "^1.0.5"
+        "@paperweight/airo": "^1.0.0",
+        "@paperweight/contracts": "^1.0.0",
+        "@paperweight/enums": "^1.0.0",
+        "@paperweight/utility": "^1.0.0"
     },
     "gitHead": "97fb54a28b64484aee2c404a5a48a5f113fb1210"
 }

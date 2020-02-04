@@ -1,6 +1,6 @@
 {
     "name": "@paperweight/contracts",
-    "version": "1.0.5",
+    "version": "1.0.0",
     "scripts": {
         "build": "tsc"
     },
@@ -12,8 +12,8 @@
         "access": "public"
     },
     "dependencies": {
-        "@paperweight/enums": "^1.0.5",
-        "@paperweight/utility": "^1.0.5"
+        "@paperweight/enums": "^1.0.0",
+        "@paperweight/utility": "^1.0.0"
     },
     "gitHead": "97fb54a28b64484aee2c404a5a48a5f113fb1210"
 }
