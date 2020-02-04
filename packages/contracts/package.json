@@ -1,6 +1,6 @@
 {
     "name": "@paperweight/contracts",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scripts": {
         "build": "tsc"
     },
@@ -9,7 +9,7 @@
         "lib": "lib"
     },
     "dependencies": {
-        "@paperweight/enums": "^1.0.0",
-        "@paperweight/utility": "^1.0.0"
+        "@paperweight/enums": "^1.0.1",
+        "@paperweight/utility": "^1.0.1"
     }
 }
