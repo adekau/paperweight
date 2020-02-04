@@ -13,29 +13,29 @@ export class Database {
         };
     }
 
-    private _updateStatus(status: IDBStatus): IDBState {
+    private _updateStatus(status: IDBStatus): Reader<IDBState, IDBState> {
         return pipe(
             ask<IDBState>(),
             ReaderP.map(s => (<IDBState>{
                 status,
                 ...s
             }))
-        )(this._state);
+        );
     }
 
-    private _updateDB(db: IDBDatabase): IDBState {
+    private _updateDB(db: IDBDatabase): Reader<IDBState, IDBState> {
         return pipe(
             ask<IDBState>(),
             ReaderP.map(s => (<IDBState>{
                 db,
                 ...s
             }))
-        )(this._state);
+        );
     }
 
     public async connect(): Promise<void> {
         return new Promise<void>((res, rej) => {
-            const req = this._connect()(this._state);
+            const req = pipe(this._state, this._connect());
 
             const unlisten = () => {
                 req.removeEventListener('success', success);
@@ -43,14 +43,17 @@ export class Database {
             };
 
             const success = () => {
-                this._state = this._updateDB(req.result);
-                this._state = this._updateStatus(IDBStatus.Connected);
+                this._state = pipe(
+                    this._state,
+                    this._updateDB(req.result),
+                    this._updateStatus(IDBStatus.Connected)
+                );
                 unlisten();
                 res();
             }
 
             const error = () => {
-                this._state = this._updateStatus(IDBStatus.Failed)
+                this._state = pipe(this._state, this._updateStatus(IDBStatus.Failed));
                 unlisten();
                 rej(req.error);
             }

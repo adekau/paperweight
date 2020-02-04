@@ -957,6 +957,41 @@
     tree-kill "1.2.2"
     webpack-sources "1.4.3"
 
+"@paperweight/airo@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@paperweight/airo/-/airo-1.0.0.tgz#2fc38bd81e6a37c6e82caa4218c3439da043fa5e"
+  integrity sha512-141QZeSwW8QMks8xY3qeYZ1bRSg6aLqvSPqbV4AzV5vBr+uiWzUOxbLDR6PwcyCHBRiQsl+oSyS6h1xmix7ofg==
+  dependencies:
+    typescript "^3.7.4"
+
+"@paperweight/contracts@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@paperweight/contracts/-/contracts-1.0.0.tgz#5fe1f24c7602100fcc4bd69fb7c469aeef1acfa8"
+  integrity sha512-eTr4++CgwyQr9Q6sVqEvG08LUWRaX4Cpbew9nLFXfCtdoknxp3gDQK+4sqlgxv5lWpeluI0ShX9J1K8XUbxtqg==
+  dependencies:
+    "@paperweight/enums" "^1.0.0"
+    "@paperweight/utility" "^1.0.0"
+
+"@paperweight/database@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@paperweight/database/-/database-1.0.0.tgz#efbdd00471d00343b1ea524d06380c4c5da1cfaf"
+  integrity sha512-kRo9y1/IG/6O1fjnJmWUSXxg58rmw+718trPXFSKDEpdtusHLWyOfoKpIr2YxEvas/Js3vKHiwgBOzVmGnCSpg==
+  dependencies:
+    "@paperweight/airo" "^1.0.0"
+    "@paperweight/contracts" "^1.0.0"
+    "@paperweight/enums" "^1.0.0"
+    "@paperweight/utility" "^1.0.0"
+
+"@paperweight/enums@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@paperweight/enums/-/enums-1.0.0.tgz#c6cdeca22fcde3557e00c5d458e6906faec38c92"
+  integrity sha512-ObmlrKWfnr3imlnpvMKoCZS6C4ge0JKVfjwc9iyT2Xe/0AgrChOsWos3cCmt26rBINmIZbtzyiNCaanVAlCz2g==
+
+"@paperweight/utility@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@paperweight/utility/-/utility-1.0.0.tgz#46536eb82e7be27791bf78627aa4e3b5d261e848"
+  integrity sha512-MNXchBMjuMEPViWpXeVWsyE/FfjUDS6G+rw74X+/4IsZM/bqaa1cDKbubU8Cw9ZnD9Nd//2U+vPT2DpJWpmewA==
+
 "@schematics/angular@8.3.24":
   version "8.3.24"
   resolved "https://registry.yarnpkg.com/@schematics/angular/-/angular-8.3.24.tgz#4d8bfbeed2849bed611e682f418bfcadb0c62277"
@@ -7220,7 +7255,7 @@ typescript@3.5.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.5.3.tgz#c830f657f93f1ea846819e929092f5fe5983e977"
   integrity sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
 
-typescript@~3.7.3:
+typescript@^3.5.0, typescript@^3.7.4:
   version "3.7.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
