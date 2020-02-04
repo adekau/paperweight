@@ -1,1 +1,0 @@
-{"version":3,"file":"db-state.d.ts","sourceRoot":"","sources":["../../../../packages/contracts/src/db-state.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,oBAAoB,CAAC;AAE/C,MAAM,WAAW,QAAQ;IACrB,EAAE,CAAC,EAAE,WAAW,CAAC;IACjB,MAAM,EAAE,SAAS,CAAC;IAClB,IAAI,EAAE,MAAM,CAAC;IACb,OAAO,EAAE,MAAM,CAAC;CACnB"}
