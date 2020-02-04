@@ -1,5 +1,4 @@
 {
-  "extends": "../tsconfig.json",
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
@@ -18,10 +17,7 @@
     "lib": [
       "es2018",
       "dom"
-    ],
-    "paths": {
-      "@database/*": ["../database"]
-    }
+    ]
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
