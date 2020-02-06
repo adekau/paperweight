@@ -42,7 +42,8 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         if (!obs$)
             throw new Error(`No action associated with ${actionName}.`);
 
-        return obs$.asObservable();
+        return obs$.asObservable()
+            .pipe(share());
     }
 
     public observeAll(): Observable<StateChange<TState>> {
@@ -66,8 +67,7 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         try {
             newState = handler.apply(this, [this._state, payload[0]]);
         } finally {
-            if (newState)
-                this._state = newState;
+            this._state = newState ?? this._state;
         }
     }
 
@@ -101,11 +101,8 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
     }
 
     private _getActionObs<K extends KnownKeys<TSchema>>(actionName: K): Subject<StateChange<TState>> {
-        const ao = this._observer.actionObservers;
-        if (ao[actionName as string])
-            return ao[actionName as string];
-
-        return this._createActionObs(actionName);
+        return this._observer.actionObservers[actionName as string]
+            ?? this._createActionObs(actionName);
     }
 
     private _createActionObs<K extends KnownKeys<TSchema>>(actionName: K): Subject<StateChange<TState>> {
