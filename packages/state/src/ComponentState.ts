@@ -40,7 +40,7 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
     public observe<K extends KnownKeys<TSchema>>(actionName: K): Observable<StateChange<TState>> {
         const obs$ = this._observer.actionObservers[actionName as string];
         if (!obs$)
-            throw new Error(`No action associated with ${actionName}.`);
+            throw new Error(`No action associated with actionName [${actionName}].`);
 
         return obs$.asObservable()
             .pipe(share());
@@ -61,7 +61,7 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         const handler = this._observer.handlers[actionName as string];
 
         if (!handler)
-            throw new Error(`No handler for ${actionName}`)
+            throw new Error(`No handler for action [${actionName}]`)
 
         let newState: TState | undefined = undefined;
         try {
@@ -90,13 +90,21 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         const subj = this._getActionObs(actionName);
 
         return (state: TState, payload?: P) => {
-            const newState = action.apply(null, [deepCopy(state), payload]);
-            subj.next({
-                actionName: actionName as string,
-                newState,
-                oldState: state
-            });
-            return newState;
+            let newState: TState | undefined = undefined;
+            try {
+                newState = action.apply(null, [deepCopy(state), payload]);
+            } finally {
+                if (!newState)
+                    throw new Error(`Expected action [${actionName}] to return a state object.`);
+
+                subj.next({
+                    actionName: actionName as string,
+                    newState,
+                    oldState: state
+                });
+
+                return newState;
+            }
         }
     }
 
