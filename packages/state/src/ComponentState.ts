@@ -61,7 +61,7 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         const handler = this._observer.handlers[actionName as string];
 
         if (!handler)
-            throw new Error(`No handler for action [${actionName}]`)
+            throw new Error(`No handler for action [${actionName}]`);
 
         let newState: TState | undefined = undefined;
         try {
