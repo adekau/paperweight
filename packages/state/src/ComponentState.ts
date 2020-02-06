@@ -33,6 +33,7 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
     }
 
     public get<K extends keyof TState>(x: K): TState[K] {
+        // do not expose modifiable reference to state
         return deepCopy(this._state[x]);
     }
 
@@ -101,16 +102,13 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
 
     private _getActionObs<K extends KnownKeys<TSchema>>(actionName: K): Subject<StateChange<TState>> {
         const ao = this._observer.actionObservers;
-        if (ao[actionName as string]) {
-            const subj = ao[actionName as string];
-            return subj;
-        }
+        if (ao[actionName as string])
+            return ao[actionName as string];
+
         return this._createActionObs(actionName);
     }
 
     private _createActionObs<K extends KnownKeys<TSchema>>(actionName: K): Subject<StateChange<TState>> {
-        const subj: Subject<StateChange<TState>> = new Subject();
-        this._observer.actionObservers[actionName as string] = subj;
-        return subj;
+        return this._observer.actionObservers[actionName as string] = new Subject();
     }
 }
