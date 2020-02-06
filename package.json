@@ -2,7 +2,8 @@
     "name": "paperweight",
     "license": "MIT",
     "scripts": {
-        "build": "lerna run build"
+        "build": "lerna run build",
+        "test:integration": "cd integration && yarn test"
     },
     "devDependencies": {
         "@types/jasmine": "^3.5.2",

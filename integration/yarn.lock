@@ -957,40 +957,40 @@
     tree-kill "1.2.2"
     webpack-sources "1.4.3"
 
-"@paperweight/airo@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@paperweight/airo/-/airo-1.0.0.tgz#2fc38bd81e6a37c6e82caa4218c3439da043fa5e"
-  integrity sha512-141QZeSwW8QMks8xY3qeYZ1bRSg6aLqvSPqbV4AzV5vBr+uiWzUOxbLDR6PwcyCHBRiQsl+oSyS6h1xmix7ofg==
+"@paperweight/airo@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@paperweight/airo/-/airo-1.0.1.tgz#cb30933adb2a67e34023a3b88d834bb782d606eb"
+  integrity sha512-YAyf5S+K/i81dihU/UUMAWWkguA+U5nHH7w2bPfMj/YnMiGNd06nwOYoXIj3GwH3hIJowUWLcvlbUEWBoo5fpA==
   dependencies:
     typescript "^3.7.4"
 
-"@paperweight/contracts@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@paperweight/contracts/-/contracts-1.0.0.tgz#5fe1f24c7602100fcc4bd69fb7c469aeef1acfa8"
-  integrity sha512-eTr4++CgwyQr9Q6sVqEvG08LUWRaX4Cpbew9nLFXfCtdoknxp3gDQK+4sqlgxv5lWpeluI0ShX9J1K8XUbxtqg==
+"@paperweight/contracts@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@paperweight/contracts/-/contracts-1.0.1.tgz#ec3f4ad5ffa0623f4e58c817827cb0391df5184a"
+  integrity sha512-tazq1FnmiNVbYcbGfYSXcHVg2HFBWGlJP5GHkhMZz1IqwzG/q7LosILkotZFXdZ54kezdT/bEXK56KC4p6E1qg==
   dependencies:
-    "@paperweight/enums" "^1.0.0"
-    "@paperweight/utility" "^1.0.0"
+    "@paperweight/enums" "^1.0.1"
+    "@paperweight/utility" "^1.0.1"
 
-"@paperweight/database@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@paperweight/database/-/database-1.0.0.tgz#efbdd00471d00343b1ea524d06380c4c5da1cfaf"
-  integrity sha512-kRo9y1/IG/6O1fjnJmWUSXxg58rmw+718trPXFSKDEpdtusHLWyOfoKpIr2YxEvas/Js3vKHiwgBOzVmGnCSpg==
+"@paperweight/database@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@paperweight/database/-/database-1.0.1.tgz#20cf5e0617b3ead96a328dc9b930501d1fc8ba75"
+  integrity sha512-J7s9GptKbsfvwmW0tmCFxNiIC1zWsg+Oi9/HwPLLCaRJT9rNl+DbhJH2kPA455ljAkP7KZ/CmmnnsazUHiwFeA==
   dependencies:
-    "@paperweight/airo" "^1.0.0"
-    "@paperweight/contracts" "^1.0.0"
-    "@paperweight/enums" "^1.0.0"
-    "@paperweight/utility" "^1.0.0"
+    "@paperweight/airo" "^1.0.1"
+    "@paperweight/contracts" "^1.0.1"
+    "@paperweight/enums" "^1.0.1"
+    "@paperweight/utility" "^1.0.1"
 
-"@paperweight/enums@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@paperweight/enums/-/enums-1.0.0.tgz#c6cdeca22fcde3557e00c5d458e6906faec38c92"
-  integrity sha512-ObmlrKWfnr3imlnpvMKoCZS6C4ge0JKVfjwc9iyT2Xe/0AgrChOsWos3cCmt26rBINmIZbtzyiNCaanVAlCz2g==
+"@paperweight/enums@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@paperweight/enums/-/enums-1.0.1.tgz#8d45ec806c0c000a7bc7831657923d23ac41b353"
+  integrity sha512-sDI+8EdX7899to80jShkPFqLMJ2miFKyYyB4jtKup+uLGRjNcyL3ocuKUufOzyddb0ZwELC6Ivu4WSKfCpN5nw==
 
-"@paperweight/utility@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@paperweight/utility/-/utility-1.0.0.tgz#46536eb82e7be27791bf78627aa4e3b5d261e848"
-  integrity sha512-MNXchBMjuMEPViWpXeVWsyE/FfjUDS6G+rw74X+/4IsZM/bqaa1cDKbubU8Cw9ZnD9Nd//2U+vPT2DpJWpmewA==
+"@paperweight/utility@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@paperweight/utility/-/utility-1.0.1.tgz#e5b146153ff0b667b21fc0027399fb9cc67e5721"
+  integrity sha512-oXfy2WV7hz+I6169P0kqtdN5fj5ba6S0LbrK/+GPd+z6Mpl91tVLRMCnZVfLKQ8TyOoIl9npZfkFvSJfdSQwMQ==
 
 "@schematics/angular@8.3.24":
   version "8.3.24"
@@ -7250,12 +7250,17 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
+typescript@3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.5.1.tgz#ba72a6a600b2158139c5dd8850f700e231464202"
+  integrity sha512-64HkdiRv1yYZsSe4xC1WVgamNigVYjlssIoaH2HcZF0+ijsk5YK2g0G34w9wJkze8+5ow4STd22AynfO6ZYYLw==
+
 typescript@3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.5.3.tgz#c830f657f93f1ea846819e929092f5fe5983e977"
   integrity sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
 
-typescript@^3.5.0, typescript@^3.7.4:
+typescript@^3.7.4:
   version "3.7.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==
