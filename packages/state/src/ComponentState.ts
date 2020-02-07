@@ -104,8 +104,8 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         } catch (e) {
             console.error(`Encountered an error running a task in thread ${thread.id}`, e);
         } finally {
-            unlock();
             await task.done();
+            unlock();
             return thread.terminate();
         }
     }
