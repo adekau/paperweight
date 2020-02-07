@@ -23,20 +23,28 @@ const actions: MySchema = {
 };
 
 describe('ComponentState', () => {
+    let st: ComponentState<MyState, MySchema>;
+
+    afterEach(() => {
+        if (st)
+            st.destroy();
+        st = null;
+    });
+
     it('should create a state', () => {
-        const st = new ComponentState(initial, actions);
+        st = new ComponentState(initial, actions);
 
         expect(st.get('count')).toEqual(5);
     });
 
     it('should execute an action', () => {
-        const st = new ComponentState(initial, actions);
+        st = new ComponentState(initial, actions);
         st.execute('increment');
         expect(st.get('count')).toEqual(6);
     });
 
     it('should observe actions', async(() => {
-        const st = new ComponentState(initial, actions);
+        st = new ComponentState(initial, actions);
         const incr$ = st.observe('increment');
         const add$ = st.observe('add');
 
@@ -60,7 +68,7 @@ describe('ComponentState', () => {
     }));
 
     it('should observe all actions', async(() => {
-        const st = new ComponentState(initial, actions);
+        st = new ComponentState(initial, actions);
         const all$ = st.observeAll();
 
         const called = [];
@@ -75,5 +83,25 @@ describe('ComponentState', () => {
         st.execute('increment');
         expect(called).toEqual(['increment', 'increment', 'add', 'increment']);
         expect(st.get('count')).toEqual(13);
+    }));
+
+    it('should destroy', async(() => {
+        st = new ComponentState(initial, actions);
+        expect(st.get('count')).toBeGreaterThan(0);
+        expect((st as any)._observer.actions).toBeTruthy();
+
+        st.destroy();
+        expect(st.get.bind(st, 'count')).toThrowError('State has been destroyed');
+        expect((st as any)._observer).toBeNull();
+        st = null;
+    }));
+
+    it('should execute on a thread', async(() => {
+        st = new ComponentState(initial, actions);
+        const task = st.executeAsync('add', 5);
+
+        task.done().then(result => {
+            expect(result).toEqual(10);
+        });
     }));
 });

@@ -28,10 +28,10 @@
         "url": "https://github.com/adekau/paperweight/issues"
     },
     "devDependencies": {
-        "fp-ts": "^2.4.4",
         "rxjs": "^6.5.4"
     },
     "dependencies": {
+        "@paperweight/airo": "^1.0.1",
         "@paperweight/utility": "^1.0.1"
     }
 }

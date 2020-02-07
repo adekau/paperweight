@@ -29,6 +29,7 @@ export type ThreadConfig = {
  */
 export class Thread implements ThreadConfig {
     private _worker: Worker;
+    private _terminated: boolean;
     public id: number;
     public onTaskDone: (thread: this) => void = noOp;
     public onTerminate: (thread: this) => void = noOp;
@@ -41,6 +42,7 @@ export class Thread implements ThreadConfig {
         this.state = 'idle';
         this.tasks = [];
         this.globals = [];
+        this._terminated = false;
         this._worker = new Worker(fnToURL(workerMain));
         this._worker.addEventListener(
             'message',
@@ -76,6 +78,8 @@ export class Thread implements ThreadConfig {
      * @returns void
      */
     public run<T extends (...args: any[]) => any>(task: Task<T>, ...args: Parameters<T>): void {
+        if (this._terminated)
+            throw new Error('Thread is terminated');
         this.tasks.push(task);
 
         const message: Message = {
@@ -99,6 +103,8 @@ export class Thread implements ThreadConfig {
      * cease to exist on the main thread. E.g. `Uint8Array`, `ArrayBuffer`.
      */
     public postMessage(msg: { type: 'run' } & Message, transferables: Transferable[]): void {
+        if (this._terminated)
+            throw new Error('Thread is terminated');
         this._worker.postMessage(msg, transferables);
     }
 
@@ -109,10 +115,21 @@ export class Thread implements ThreadConfig {
      * @returns Promise<void>
      */
     public setOrMergeGlobals(globals: { [k: string]: any }): Promise<void> {
+        if (this._terminated)
+            throw new Error('Thread is terminated');
         Object.assign(this.globals, globals);
         const setGlobalTask = new Task(setGlobals);
         this.run(setGlobalTask, this.globals);
         return setGlobalTask.done();
+    }
+
+    /**
+     * Terminates the worker thread and blocks this thread from further use.
+     */
+    public terminate(): void {
+        this._worker.terminate();
+        this._terminated = true;
+        this.onTerminate(this);
     }
 }
 

@@ -1,3 +1,4 @@
+import { Task, Thread, Mutex } from '@paperweight/airo';
 import { deepCopy } from '@paperweight/utility';
 import { merge, Observable, Subject } from 'rxjs';
 import { share } from 'rxjs/operators';
@@ -9,11 +10,14 @@ import { StateObserver } from './StateObserver';
 import { KnownKeys, PayloadType, SecondParamOrEmpty } from './Types';
 
 export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
+    private static SPAWNED_THREADS: number = 0;
     private _observer: StateObserver<TState>;
     private _state: TState;
+    private _stateMutex: Mutex;
 
     constructor(initialState: TState, actions: TSchema) {
         this._state = initialState;
+        this._stateMutex = new Mutex();
 
         this._observer = {
             actions: {},
@@ -33,6 +37,8 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
     }
 
     public get<K extends keyof TState>(x: K): TState[K] {
+        if (!this._state)
+            throw new Error('State has been destroyed');
         // do not expose modifiable reference to state
         return deepCopy(this._state[x]);
     }
@@ -68,6 +74,28 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
             newState = handler.apply(this, [this._state, payload[0]]);
         } finally {
             this._state = newState ?? this._state;
+        }
+    }
+
+    public async executeAsync<K extends KnownKeys<TSchema>>(
+        actionName: K,
+        ...payload: K extends string ? SecondParamOrEmpty<Parameters<TSchema[K]>> : never
+    ): Promise<void> {
+        const thread = new Thread({
+            id: ++ComponentState.SPAWNED_THREADS
+        });
+
+        const unlock = await this._stateMutex.lock();
+        const task = new Task(() => this.execute(actionName, ...payload));
+
+        try {
+            thread.run(task);
+        } catch (e) {
+            console.error(`Encountered an error running a task in thread ${thread.id}`, e);
+        } finally {
+            unlock();
+            await task.done();
+            return thread.terminate();
         }
     }
 
@@ -115,5 +143,13 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
 
     private _createActionObs<K extends KnownKeys<TSchema>>(actionName: K): Subject<StateChange<TState>> {
         return this._observer.actionObservers[actionName as string] = new Subject();
+    }
+
+    public destroy() {
+        Object.keys(this._observer.actionObservers)
+            .forEach(key => this._observer.actionObservers[key].complete());
+
+        (this._observer as unknown) = null;
+        (this._state as unknown) = null;
     }
 }

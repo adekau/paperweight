@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-fp-ts@^2.4.4:
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.4.4.tgz#d1ffe3e62ee4fa789562242d5a3f9b957740b783"
-  integrity sha512-J5wFa/BzT57A+DIvwAYS5LTsbRiXsvF9hsefP3ZfzsHLuWGjtHAheG1WscG1tX3og1PDZyv6mZAUTlpH1MmHhA==
+"@paperweight/utility@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@paperweight/utility/-/utility-1.0.1.tgz#e5b146153ff0b667b21fc0027399fb9cc67e5721"
+  integrity sha512-oXfy2WV7hz+I6169P0kqtdN5fj5ba6S0LbrK/+GPd+z6Mpl91tVLRMCnZVfLKQ8TyOoIl9npZfkFvSJfdSQwMQ==
 
 rxjs@^6.5.4:
   version "6.5.4"
