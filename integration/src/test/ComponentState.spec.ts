@@ -96,12 +96,10 @@ describe('ComponentState', () => {
         st = null;
     }));
 
-    it('should execute on a thread', async(() => {
+    it('should execute on a thread', async(async () => {
         st = new ComponentState(initial, actions);
-        const task = st.executeAsync('add', 5);
+        await st.executeAsync('add', 5);
 
-        task.done().then(result => {
-            expect(result).toEqual(10);
-        });
+        expect(st.get('count')).toEqual(10);
     }));
 });

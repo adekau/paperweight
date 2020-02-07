@@ -1,4 +1,4 @@
-import { Task, Thread, Mutex } from '@paperweight/airo';
+import { Mutex, sfunc, Task, Thread } from '@paperweight/airo';
 import { deepCopy } from '@paperweight/utility';
 import { merge, Observable, Subject } from 'rxjs';
 import { share } from 'rxjs/operators';
@@ -20,7 +20,7 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         this._stateMutex = new Mutex();
 
         this._observer = {
-            actions: {},
+            actions: actions,
             handlers: {},
             actionObservers: {}
         };
@@ -84,12 +84,23 @@ export class ComponentState<TState, TSchema extends ActionSchema<TState>> {
         const thread = new Thread({
             id: ++ComponentState.SPAWNED_THREADS
         });
+        console.log(this._observer.actions);
+        await thread.setOrMergeGlobals({
+            state: this._state,
+            action: this._observer.actions[actionName as string],
+            cloneState: deepCopy(this._state)
+        });
 
         const unlock = await this._stateMutex.lock();
-        const task = new Task(() => this.execute(actionName, ...payload));
+        const task = new Task(sfunc<unknown, void>`
+            (pl) => {
+                var ns = self.action.apply(null, [self.cloneState, pl]);
+                self.state = ns || self.state;
+            }
+        `);
 
         try {
-            thread.run(task);
+            thread.run(task, payload[0]);
         } catch (e) {
             console.error(`Encountered an error running a task in thread ${thread.id}`, e);
         } finally {
