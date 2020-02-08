@@ -1,6 +1,6 @@
 {
     "name": "@paperweight/airo",
-    "version": "1.0.2",
+    "version": "1.1.0-alpha.0",
     "description": "Functional Programming in TS",
     "main": "lib/index.js",
     "author": "Alex Dekau",

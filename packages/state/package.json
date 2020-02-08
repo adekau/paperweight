@@ -1,6 +1,6 @@
 {
     "name": "@paperweight/state",
-    "version": "1.0.2",
+    "version": "1.1.0-alpha.0",
     "description": "> TODO: description",
     "author": "Alexander J Dekau <alexander.j.dekau@wmich.edu>",
     "homepage": "https://github.com/adekau/paperweight#readme",
@@ -31,7 +31,7 @@
         "rxjs": "^6.5.4"
     },
     "dependencies": {
-        "@paperweight/airo": "^1.0.2",
-        "@paperweight/utility": "^1.0.2"
+        "@paperweight/airo": "^1.1.0-alpha.0",
+        "@paperweight/utility": "^1.1.0-alpha.0"
     }
 }
