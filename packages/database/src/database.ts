@@ -38,7 +38,7 @@ export class Database {
                 this._updateDB(db);
                 this._updateStatus(IDBStatus.Connected)
             }),
-            // Don't want to expose the raw db object
+            //Don't want to expose the raw db object
             map(() => void 0)
         ).toPromise();
     }
