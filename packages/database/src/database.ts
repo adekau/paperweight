@@ -1,7 +1,8 @@
 import { transaction } from '@datorama/akita';
 import { IDBStatus } from '@paperweight/enums';
-import { Observable } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { IDatabaseRequestOptions } from '@paperweight/contracts';
+import { Observable, throwError, of } from 'rxjs';
+import { first, map, switchMap, tap } from 'rxjs/operators';
 
 import { DatabaseQuery } from './queries/database.query';
 import { DatabaseRequest } from './request';
@@ -32,21 +33,34 @@ export class Database {
         this._state.update({ db });
     }
 
-    public async connect(): Promise<void> {
-        return this._connect().pipe(
+    public connect(opts?: IDatabaseRequestOptions): Observable<void> {
+        return this._connect(opts).pipe(
             tap(db => {
                 this._updateDB(db);
                 this._updateStatus(IDBStatus.Connected)
             }),
             //Don't want to expose the raw db object
-            map(() => void 0)
-        ).toPromise();
+            map(() => void 0),
+            first()
+        );
     }
 
-    private _connect(): Observable<IDBDatabase> {
+    public transaction(storeNames: string | string[], mode?: "readonly" | "readwrite" | "versionchange" | undefined): Observable<IDBTransaction> {
+        return this._query.db$
+            .pipe(
+                switchMap(db => {
+                    const transaction = db?.transaction(storeNames, mode);
+                    if (!transaction)
+                        return throwError('Transaction could not be created');
+                    return of(transaction);
+                })
+            );
+    }
+
+    private _connect(opts?: IDatabaseRequestOptions): Observable<IDBDatabase> {
         return this._query.nameVersion$.pipe(
-            map(nv => new DatabaseRequest(indexedDB.open(nv.name, nv.version))),
-            switchMap(dbr => dbr.result)
+            map(nv => new DatabaseRequest(indexedDB.open(nv.name, nv.version), opts)),
+            switchMap(dbr => dbr.result() as Promise<IDBDatabase>)
         );
     }
 }
