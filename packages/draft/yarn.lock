@@ -21,6 +21,11 @@
     "@angular-devkit/core" "7.3.9"
     rxjs "6.3.3"
 
+"@angular/core@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/core/-/core-9.0.0.tgz#227dc53e1ac81824f998c6e76000b7efc522641e"
+  integrity sha512-6Pxgsrf0qF9iFFqmIcWmjJGkkCaCm6V5QNnxMy2KloO3SDq6QuMVRbN9RtC8Urmo25LP+eZ6ZgYqFYpdD8Hd9w==
+
 "@datorama/akita@^4.19.2":
   version "4.19.2"
   resolved "https://registry.yarnpkg.com/@datorama/akita/-/akita-4.19.2.tgz#0b69aadff32a4a7ee384db7a6777e24168868277"
@@ -28,31 +33,6 @@
   dependencies:
     schematics-utilities "^1.1.1"
     tslib "^1.9.0"
-
-"@paperweight/airo@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@paperweight/airo/-/airo-1.0.1.tgz#cb30933adb2a67e34023a3b88d834bb782d606eb"
-  integrity sha512-YAyf5S+K/i81dihU/UUMAWWkguA+U5nHH7w2bPfMj/YnMiGNd06nwOYoXIj3GwH3hIJowUWLcvlbUEWBoo5fpA==
-  dependencies:
-    typescript "^3.7.4"
-
-"@paperweight/contracts@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@paperweight/contracts/-/contracts-1.0.1.tgz#ec3f4ad5ffa0623f4e58c817827cb0391df5184a"
-  integrity sha512-tazq1FnmiNVbYcbGfYSXcHVg2HFBWGlJP5GHkhMZz1IqwzG/q7LosILkotZFXdZ54kezdT/bEXK56KC4p6E1qg==
-  dependencies:
-    "@paperweight/enums" "^1.0.1"
-    "@paperweight/utility" "^1.0.1"
-
-"@paperweight/enums@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@paperweight/enums/-/enums-1.0.1.tgz#8d45ec806c0c000a7bc7831657923d23ac41b353"
-  integrity sha512-sDI+8EdX7899to80jShkPFqLMJ2miFKyYyB4jtKup+uLGRjNcyL3ocuKUufOzyddb0ZwELC6Ivu4WSKfCpN5nw==
-
-"@paperweight/utility@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@paperweight/utility/-/utility-1.0.1.tgz#e5b146153ff0b667b21fc0027399fb9cc67e5721"
-  integrity sha512-oXfy2WV7hz+I6169P0kqtdN5fj5ba6S0LbrK/+GPd+z6Mpl91tVLRMCnZVfLKQ8TyOoIl9npZfkFvSJfdSQwMQ==
 
 ajv@6.9.1:
   version "6.9.1"
@@ -1463,7 +1443,7 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^3.3.3333, typescript@^3.7.4:
+typescript@^3.3.3333:
   version "3.7.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha512-/P5lkRXkWHNAbcJIiHPfRoKqyd7bsyCma1hZNUGfn20qm64T6ZBlrzprymeu918H+mB/0rIg2gGK/BXkhhYgBw==

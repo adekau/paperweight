@@ -1,0 +1,34 @@
+{
+    "name": "@paperweight/draft",
+    "version": "1.1.0-alpha.1",
+    "description": "> TODO: description",
+    "author": "Alexander J Dekau <alexander.j.dekau@wmich.edu>",
+    "homepage": "https://github.com/adekau/paperweight#readme",
+    "license": "MIT",
+    "main": "lib/index.js",
+    "directories": {
+        "lib": "lib",
+        "test": "__tests__"
+    },
+    "files": [
+        "lib"
+    ],
+    "publishConfig": {
+        "registry": "https://registry.yarnpkg.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/adekau/paperweight.git"
+    },
+    "scripts": {
+        "build": "tsc"
+    },
+    "bugs": {
+        "url": "https://github.com/adekau/paperweight/issues"
+    },
+    "devDependencies": {
+        "@angular/core": "^9.0.0",
+        "@datorama/akita": "^4.19.2",
+        "rxjs": "^6.5.4"
+    }
+}
