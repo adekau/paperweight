@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { interval } from 'rxjs';
 import { debounce, switchMap, tap } from 'rxjs/operators';
 
-import { FormDraftService } from '../../../packages/draft/lib/form-draft.service';
+import { FormDraftService } from '../../../packages/drafts/dist/drafts';
 
 @Component({
     selector: 'app-root',

@@ -3,37 +3,35 @@ import { IDBPDatabase, openDB } from 'idb';
 import { from, Observable } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class IndexedDBService {
-    private _db$: Observable<IDBPDatabase>;
-    private _storeName: string = 'drafts';
+    private db$: Observable<IDBPDatabase>;
+    private storeName = 'drafts';
 
     constructor() {
-        this._db$ = from(openDB('form-draft-db', 1, {
+        this.db$ = from(openDB('form-draft-db', 1, {
             upgrade: (db) => {
-                db.createObjectStore(this._storeName, { keyPath: 'id', autoIncrement: true });
+                db.createObjectStore(this.storeName, { keyPath: 'id', autoIncrement: true });
             }
         }))
             .pipe(first());
     }
 
     public get(key: IDBValidKey): Observable<any> {
-        return this._db$.pipe(
-            switchMap(db => db.get(this._storeName, key))
+        return this.db$.pipe(
+            switchMap(db => db.get(this.storeName, key))
         );
     }
 
     public getAll(): Observable<any> {
-        return this._db$.pipe(
-            switchMap(db => db.getAll(this._storeName))
+        return this.db$.pipe(
+            switchMap(db => db.getAll(this.storeName))
         );
     }
 
     public put(obj: any): Observable<IDBValidKey> {
-        return this._db$.pipe(
-            switchMap(db => db.put(this._storeName, obj))
+        return this.db$.pipe(
+            switchMap(db => db.put(this.storeName, obj))
         );
     }
 }

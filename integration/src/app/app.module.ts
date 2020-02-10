@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormDraftModule } from '../../../packages/draft/lib/form-draft.module';
+import { FormDraftModule } from '';
 
 import { AppComponent } from './app.component';
 
