@@ -1,7 +1,6 @@
 node_modules
 packages/*/lib
 packages/*/tsconfig.tsbuildinfo
-lib
 dist
 .DS_Store
-!integration/projects/drafts/src/lib
+lib

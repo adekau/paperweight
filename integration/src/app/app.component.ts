@@ -21,15 +21,15 @@ export class AppComponent {
             lastName: ''
         });
 
-        this.form.valueChanges.pipe(
-            debounce(() => interval(3000)),
-            switchMap(v => this._fds.saveDraftAsync(v)),
-            // switchMap(key => this._fds.getDraftAsync(key))
-            switchMap(() => this._fds.getAllDraftsAsync()),
-            tap(all => console.log(all))
-        ).subscribe();
+        // this.form.valueChanges.pipe(
+        //     debounce(() => interval(3000)),
+        //     switchMap(v => this._fds.saveDraftAsync(v)),
+        //     // switchMap(key => this._fds.getDraftAsync(key))
+        //     switchMap(() => this._fds.getAllDraftsAsync()),
+        //     tap(all => console.log(all))
+        // ).subscribe();
 
-        this._fds.register('form-1', this.form);
+        // this._fds.register('form-1', this.form);
     }
 
     public onSubmit(data): void {
