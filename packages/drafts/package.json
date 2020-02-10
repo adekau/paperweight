@@ -1,6 +1,6 @@
 {
   "name": "@paperweight/drafts",
-  "version": "1.1.0-alpha.2",
+  "version": "1.1.0-alpha.3",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -18,7 +18,7 @@
     "@angular/platform-browser": "~8.2.3",
     "@angular/platform-browser-dynamic": "~8.2.3",
     "@angular/router": "~8.2.3",
-    "@paperweight/contracts": "^1.1.0-alpha.2",
+    "@paperweight/contracts": "^1.1.0-alpha.3",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"
