@@ -3,7 +3,9 @@ import { IDBPDatabase, openDB } from 'idb';
 import { from, Observable } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class IndexedDBService {
     private db$: Observable<IDBPDatabase>;
     private storeName = 'drafts';

@@ -1,6 +1,7 @@
 {
     "packages": [
-        "packages/*"
+        "packages/*",
+        "integration/projects/drafts"
     ],
     "npmClient": "yarn",
     "version": "1.1.0-alpha.4"

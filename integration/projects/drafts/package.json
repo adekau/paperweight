@@ -1,0 +1,21 @@
+{
+  "name": "@paperweight/drafts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^8.2.14",
+    "@angular/core": "^8.2.14"
+  },
+  "devDependencies": {
+    "@angular/common": "^8.2.14",
+    "@angular/core": "^8.2.14",
+    "@angular/forms": "^8.2.14",
+    "@datorama/akita": "^4.19.2",
+    "idb": "^5.0.1"
+  },
+  "dependencies": {
+    "@paperweight/contracts": "^1.1.0-alpha.4"
+  }
+}

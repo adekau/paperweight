@@ -6,7 +6,9 @@ import { IndexedDBService } from './indexed-db.service';
 import { FormDraftQuery } from './queries/form-draft.query';
 import { FormDraftStore } from './stores/form-draft.store';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class FormDraftService {
 
     constructor(

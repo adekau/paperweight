@@ -4,4 +4,4 @@ packages/*/tsconfig.tsbuildinfo
 lib
 dist
 .DS_Store
-!packages/drafts/projects/drafts/src/lib
+!integration/projects/drafts/src/lib

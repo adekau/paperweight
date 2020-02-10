@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { interval } from 'rxjs';
 import { debounce, switchMap, tap } from 'rxjs/operators';
-
-import { FormDraftService } from '../../../packages/drafts/dist/drafts';
+import { FormDraftService } from 'projects/drafts/src/public-api';
 
 @Component({
     selector: 'app-root',
