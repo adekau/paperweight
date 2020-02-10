@@ -1,6 +1,6 @@
 {
     "name": "@paperweight/compression",
-    "version": "1.1.0-alpha.0",
+    "version": "1.1.0-alpha.2",
     "main": "index.js",
     "directories": {
         "lib": "lib"
@@ -12,7 +12,7 @@
         "access": "public"
     },
     "dependencies": {
-        "@paperweight/contracts": "^1.1.0-alpha.0",
+        "@paperweight/contracts": "^1.1.0-alpha.2",
         "@paperweight/enums": "^1.0.1",
         "@paperweight/utility": "^1.1.0-alpha.0"
     },
