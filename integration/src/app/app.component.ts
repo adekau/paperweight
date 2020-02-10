@@ -1,22 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { Database } from '@paperweight/database';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { interval } from 'rxjs';
+import { debounce, switchMap, tap } from 'rxjs/operators';
+
+import { FormDraftService } from '../../../packages/draft/lib/form-draft.service';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-    title = 'integration';
+export class AppComponent {
+    public form: FormGroup;
 
-    constructor() {
+    constructor(
+        private _formBuilder: FormBuilder,
+        private _fds: FormDraftService
+    ) {
+        this.form = this._formBuilder.group({
+            firstName: '',
+            lastName: ''
+        });
 
+        this.form.valueChanges.pipe(
+            debounce(() => interval(3000)),
+            switchMap(v => this._fds.saveDraftAsync(v)),
+            // switchMap(key => this._fds.getDraftAsync(key))
+            switchMap(() => this._fds.getAllDraftsAsync()),
+            tap(all => console.log(all))
+        ).subscribe();
+
+        this._fds.register('form-1', this.form);
     }
 
-    ngOnInit(): void {
-        const db = new Database('test', 1);
-        db.connect().then(() => {
-            console.log(db);
-        });
+    public onSubmit(data): void {
+        console.warn('Submitted', data);
     }
 }
