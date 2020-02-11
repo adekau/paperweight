@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IDBPDatabase, openDB } from 'idb';
 import { from, Observable } from 'rxjs';
-import { first, switchMap } from 'rxjs/operators';
+import { first, switchMap, map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -20,20 +20,31 @@ export class IndexedDBService {
     }
 
     public get(key: IDBValidKey): Observable<any> {
-        return this.db$.pipe(
-            switchMap(db => db.get(this.storeName, key))
-        );
+        return this.db$
+            .pipe(
+                switchMap(db => db.get(this.storeName, key))
+            );
     }
 
     public getAll(): Observable<any> {
-        return this.db$.pipe(
-            switchMap(db => db.getAll(this.storeName))
-        );
+        return this.db$
+            .pipe(
+                switchMap(db => db.getAll(this.storeName))
+            );
     }
 
     public put(obj: any): Observable<IDBValidKey> {
-        return this.db$.pipe(
-            switchMap(db => db.put(this.storeName, obj))
-        );
+        return this.db$
+            .pipe(
+                switchMap(db => db.put(this.storeName, obj))
+            );
+    }
+
+    public clearAll(): Observable<void> {
+        return this.db$
+            .pipe(
+                map(db => db.transaction(this.storeName, 'readwrite').store),
+                switchMap(os => os.clear())
+            );
     }
 }

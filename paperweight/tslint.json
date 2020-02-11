@@ -55,6 +55,7 @@
       "timeEnd",
       "trace"
     ],
+    "no-bitwise": false,
     "no-empty": false,
     "no-non-null-assertion": true,
     "no-redundant-jsdoc": true,

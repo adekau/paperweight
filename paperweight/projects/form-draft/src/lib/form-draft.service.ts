@@ -1,8 +1,8 @@
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
 import { IFormDraftOptions } from 'projects/contracts/src/public-api';
-import { interval, Observable } from 'rxjs';
-import { debounce, map, switchMap } from 'rxjs/operators';
+import { interval, Observable, of, throwError } from 'rxjs';
+import { debounce, map, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 import { IndexedDBService } from './indexed-db.service';
 import { FormDraftQuery } from './queries/form-draft.query';
@@ -22,7 +22,7 @@ export class FormDraftService {
         @Optional() @Inject(FORM_DRAFT_OPTIONS) private formDraftOptions: IFormDraftOptions
     ) { }
 
-    public saveDraftAsync(formIdentifier: string, draft: any): Observable<IDBValidKey> {
+    public saveDraftAsync<T>(formIdentifier: string, draft: T): Observable<IDBValidKey> {
         return this.idbService.put({ id: formIdentifier, ...draft });
     }
 
@@ -45,6 +45,17 @@ export class FormDraftService {
         return !!this.formDraftQuery.getValue().forms[formName];
     }
 
+    public selectHasForm(formName: string): Observable<boolean> {
+        return this.formDraftQuery.forms$
+            .pipe(
+                map(state => !!state.forms[formName])
+            );
+    }
+
+    public clearAllDrafts(): Observable<void> {
+        return this.idbService.clearAll();
+    }
+
     /**
      * Gets a debounced observable emits when the form value changes.
      * @param formName: The form's unique identifier
@@ -52,16 +63,23 @@ export class FormDraftService {
     public getValueChanges(formName: string): Observable<any> {
         return this.getForm(formName)
             .pipe(
+                takeWhile(() => this.hasForm(formName)),
                 switchMap(form => form.valueChanges),
-                debounce(() => interval(this.formDraftOptions ? this.formDraftOptions.debounceInterval : 3000))
+                debounce(() => interval(
+                    this.formDraftOptions
+                        ? this.formDraftOptions.debounceInterval
+                        : 3000
+                ))
             );
     }
 
-    public register(formIdentifier: string, form: AbstractFormGroup): void {
-        if (this.hasForm(formIdentifier))
+    public register(formIdentifier: string, form: AbstractFormGroup): Observable<void> {
+        if (this.hasForm(formIdentifier)) {
             console.warn('A form has already been registered with identifier', formIdentifier);
+            return throwError('A form has already been registered with identifier' + formIdentifier);
+        }
 
-        this.formDraftStore.update({
+        return of<void>(this.formDraftStore.update({
             forms: {
                 [formIdentifier]: form
             },
@@ -74,26 +92,37 @@ export class FormDraftService {
                     )
                     .subscribe()
             }
-        });
+        }));
     }
 
-    public unregister(formIdentifier: string): void {
-        if (!this.hasForm(formIdentifier))
+    public unregister(formIdentifier: string): Observable<void> {
+        if (!this.hasForm(formIdentifier)) {
             console.warn('No form is registered with identifier', formIdentifier);
+            return throwError('No form is registered with identifier' + formIdentifier);
+        }
 
-        this.formDraftQuery.getValue().subscriptions[formIdentifier].unsubscribe();
+        return this.formDraftQuery
+            .select()
+            .pipe(
+                tap(state =>
+                    state.subscriptions[formIdentifier]
+                        ? state.subscriptions[formIdentifier].unsubscribe()
+                        : void 0
+                ),
+                map(() => {
+                    return this.formDraftStore.update(state => ({
+                        forms: {
+                            ...(state.forms || {}),
+                            [formIdentifier]: undefined
+                        },
 
-        this.formDraftStore.update(state => ({
-            forms: {
-                ...(state.forms || {}),
-                [formIdentifier]: undefined
-            },
-
-            subscriptions: {
-                ...(state.subscriptions || {}),
-                [formIdentifier]: undefined
-            }
-        }));
+                        subscriptions: {
+                            ...(state.subscriptions || {}),
+                            [formIdentifier]: undefined
+                        }
+                    }));
+                })
+            );
     }
 
     public getRegisteredForms(): Observable<AbstractFormGroup[]> {

@@ -1,4 +1,5 @@
-<div>
+<button (click)="toggle()">{{ show ? 'Hide' : 'Show' }}</button>
+<div *ngIf="show">
     <form [formGroup]="form" (ngSubmit)="onSubmit(form.value)">
 
         <div>
