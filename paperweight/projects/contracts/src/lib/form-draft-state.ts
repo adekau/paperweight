@@ -1,4 +1,13 @@
-import { FormGroup } from '@angular/forms';
-import { EntityState } from '@datorama/akita';
+import { SubscriptionLike } from 'rxjs';
 
-export interface IFormDraftState extends EntityState<FormGroup, string> { }
+import { AbstractFormGroup } from './abstract-form-group';
+
+export interface IFormDraftState {
+    forms: {
+        [k: string]: AbstractFormGroup;
+    };
+
+    subscriptions: {
+        [k: string]: SubscriptionLike
+    };
+}
