@@ -3,4 +3,3 @@ packages/*/lib
 packages/*/tsconfig.tsbuildinfo
 dist
 .DS_Store
-lib

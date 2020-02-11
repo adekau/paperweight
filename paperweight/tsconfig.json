@@ -26,6 +26,14 @@
       "utility": [
         "dist/utility/utility",
         "dist/utility"
+      ],
+      "compression": [
+        "dist/compression/compression",
+        "dist/compression"
+      ],
+      "form-draft": [
+        "dist/form-draft/form-draft",
+        "dist/form-draft"
       ]
     }
   },
