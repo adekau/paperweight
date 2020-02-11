@@ -40,10 +40,20 @@ export class IndexedDBService {
             );
     }
 
+    public delete(id: IDBValidKey): Observable<void> {
+        return this.db$
+            .pipe(
+                switchMap(db => db.delete(this.storeName, id))
+            );
+    }
+
     public clearAll(): Observable<void> {
         return this.db$
             .pipe(
-                map(db => db.transaction(this.storeName, 'readwrite').store),
+                map(db => db
+                    .transaction(this.storeName, 'readwrite')
+                    .store
+                ),
                 switchMap(os => os.clear())
             );
     }
