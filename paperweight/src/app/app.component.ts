@@ -1,8 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { FormDraftService } from 'projects/form-draft/src/public-api';
+import { of, SubscriptionLike } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { SubscriptionLike } from 'rxjs';
 
 @Component({
     selector: 'app-root',
@@ -20,15 +20,26 @@ export class AppComponent implements OnDestroy {
     ) {
         this.form = this._formBuilder.group({
             firstName: [''],
-            lastName: ['']
+            lastName: [''],
+            height: this._formBuilder.group({
+                feet: [''],
+                inches: ['']
+            })
         });
 
         this._subscriptions.push(
             this._fds.register('form-1', this.form)
                 .pipe(
-                    switchMap(() => this._fds.getValueChanges('form-1')),
+                    switchMap(name => this._fds.getValueChanges(name, 100)),
                     switchMap(() => this._fds.getAllDraftsAsync()),
-                    tap(v => console.log(v))
+                    tap(v => console.log(v)),
+                    switchMap(() => this._fds.getFormControl('form-1', 'height.inches')),
+                    switchMap(control => {
+                        return this._fds.getFormControl('form-1', 'height.feet').pipe(
+                            switchMap(control2 => this._fds.setDisabled(control, control2.value > 10))
+                        );
+                    }),
+                    tap(v => console.log(v.value))
                 )
                 .subscribe()
         );
@@ -43,7 +54,9 @@ export class AppComponent implements OnDestroy {
     }
 
     public ngOnDestroy(): void {
-        this._fds.unregister('form-1');
+        this._subscriptions.push(
+            this._fds.unregister('form-1').subscribe()
+        );
         this._subscriptions.forEach(sub => sub.unsubscribe());
     }
 }

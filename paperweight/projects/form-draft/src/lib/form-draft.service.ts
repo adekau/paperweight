@@ -1,8 +1,9 @@
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
-import { IFormDraftOptions } from 'projects/contracts/src/public-api';
+import { AbstractFormControl, IFormDraftOptions } from 'projects/contracts/src/public-api';
 import { interval, Observable, of, throwError } from 'rxjs';
-import { debounce, map, switchMap, takeWhile, tap } from 'rxjs/operators';
+import { debounce, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 import { IndexedDBService } from './indexed-db.service';
 import { FormDraftQuery } from './queries/form-draft.query';
@@ -58,28 +59,72 @@ export class FormDraftService {
 
     /**
      * Gets a debounced observable emits when the form value changes.
-     * @param formName: The form's unique identifier
+     * @param formName The form's unique identifier
      */
-    public getValueChanges(formName: string): Observable<any> {
+    public getValueChanges(formName: string, debounceInterval: number = 0): Observable<any> {
         return this.getForm(formName)
             .pipe(
                 takeWhile(() => this.hasForm(formName)),
                 switchMap(form => form.valueChanges),
-                debounce(() => interval(
-                    this.formDraftOptions
-                        ? this.formDraftOptions.debounceInterval
-                        : 3000
-                ))
+                (
+                    debounceInterval
+                        ? debounce(() => interval(debounceInterval))
+                        // no-op if debounceInterval = 0
+                        : map(v => v)
+                )
             );
     }
 
-    public register(formIdentifier: string, form: AbstractFormGroup): Observable<void> {
+    public getAllFormControls(formName: string): Observable<AbstractFormGroup['controls']> {
+        return this.getForm(formName)
+            .pipe(
+                pluck('controls')
+            );
+    }
+
+    public getFormControl(formName: string, path: string): Observable<AbstractFormControl> {
+        return this.getAllFormControls(formName)
+            .pipe(
+                this.resolveFormControl(path),
+                distinctUntilChanged(deepCompare())
+            );
+    }
+
+    public setDisabled(control: AbstractFormControl, disabled: boolean, emitEvent: boolean = false): Observable<AbstractFormControl> {
+        (control as FormControl)[disabled ? 'disable' : 'enable']({
+            emitEvent
+        });
+        return of(control);
+    }
+
+    private resolveFormControl(path: string | string[]) {
+        return (source: Observable<AbstractFormGroup['controls']>): Observable<AbstractFormControl> => {
+            const [first, ...rest] = Array.isArray(path)
+                ? path
+                : path.split('.');
+
+            if (!rest.length) {
+                return source.pipe(
+                    map(all => all[first])
+                );
+            }
+
+            return source.pipe(
+                flatMap(all => Object.prototype.hasOwnProperty.call(all[first], 'controls')
+                    ? of((all[first] as AbstractFormGroup).controls)
+                    : throwError('Form control path was expecting a form group.')),
+                this.resolveFormControl(rest)
+            );
+        };
+    }
+
+    public register(formIdentifier: string, form: AbstractFormGroup): Observable<string> {
         if (this.hasForm(formIdentifier)) {
             console.warn('A form has already been registered with identifier', formIdentifier);
             return throwError('A form has already been registered with identifier' + formIdentifier);
         }
 
-        return of<void>(this.formDraftStore.update({
+        return of<string>(this.formDraftStore.update({
             forms: {
                 [formIdentifier]: form
             },
@@ -92,7 +137,10 @@ export class FormDraftService {
                     )
                     .subscribe()
             }
-        }));
+        }))
+            .pipe(
+                map(() => formIdentifier)
+            );
     }
 
     public unregister(formIdentifier: string): Observable<void> {
@@ -131,4 +179,8 @@ export class FormDraftService {
                 map(state => Object.keys(state.forms).map(key => state.forms[key]))
             );
     }
+}
+
+function deepCompare() {
+    return (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 }
