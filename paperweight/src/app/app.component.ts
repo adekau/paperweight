@@ -30,7 +30,7 @@ export class AppComponent implements OnDestroy {
         this._subscriptions.push(
             this._fds.register('form-1', this.form)
                 .pipe(
-                    switchMap(name => this._fds.getValueChanges(name, 100)),
+                    switchMap(name => this._fds.getValueChanges(name)),
                     switchMap(() => this._fds.getAllDraftsAsync()),
                     tap(v => console.log(v)),
                     switchMap(() => this._fds.getFormControl('form-1', 'height.inches')),

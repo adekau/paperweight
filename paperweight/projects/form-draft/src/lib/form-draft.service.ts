@@ -2,7 +2,7 @@ import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
 import { AbstractFormControl, IFormDraftOptions } from 'projects/contracts/src/public-api';
-import { interval, Observable, of, throwError } from 'rxjs';
+import { identity, interval, Observable, of, throwError } from 'rxjs';
 import { debounce, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 import { IndexedDBService } from './indexed-db.service';
@@ -70,7 +70,7 @@ export class FormDraftService {
                     debounceInterval
                         ? debounce(() => interval(debounceInterval))
                         // no-op if debounceInterval = 0
-                        : map(v => v)
+                        : identity
                 )
             );
     }
