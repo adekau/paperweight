@@ -77,11 +77,27 @@ export class FormDraftService {
             );
     }
 
-    public setDisabled(control: AbstractFormControl, disabled: boolean, emitEvent: boolean = false): Observable<AbstractFormControl> {
-        (control as FormControl)[disabled ? 'disable' : 'enable']({
-            emitEvent
-        });
-        return of(control);
+    public setDisabled(formName: string, path: string | string[], disabled: boolean, emitEvent?: boolean): Observable<AbstractFormControl>;
+    public setDisabled(control: AbstractFormControl, disabled: boolean, emitEvent?: boolean): Observable<AbstractFormControl>;
+    public setDisabled(...args: any[]): Observable<AbstractFormControl> {
+        const control = this._formControlOrResolve(...args);
+        let disabled: boolean;
+        let emitEvent: boolean;
+
+        if (typeof args[0] === 'string') {
+            disabled = args[2];
+            emitEvent = !!args[3];
+        } else {
+            disabled = args[1];
+            emitEvent = !!args[2];
+        }
+
+        return control
+            .pipe(
+                tap(con => (con as FormControl)[disabled ? 'disable' : 'enable']({
+                    emitEvent
+                }))
+            );
     }
 
     public isRequired(formName: string, path: string | string[]): Observable<boolean>;
@@ -114,8 +130,7 @@ export class FormDraftService {
             validators = args[1];
 
         return control.pipe(
-            map(c => (c as AbstractControl).setValidators(validators)),
-            flatMap(() => control)
+            tap(c => (c as AbstractControl).setValidators(validators))
         );
     }
 

@@ -20,7 +20,7 @@ export class AppComponent implements OnDestroy {
     ) {
         this.form = this._formBuilder.group({
             firstName: [''],
-            lastName: [''],
+            lastName: ['', Validators.required],
             height: this._formBuilder.group({
                 feet: [''],
                 inches: ['']
@@ -33,17 +33,16 @@ export class AppComponent implements OnDestroy {
                     switchMap(name => this._fds.getValueChanges(name)),
                     switchMap(() => this._fds.getAllDraftsAsync()),
                     tap(v => console.log(v)),
-                    switchMap(() => this._fds.getFormControl('form-1', 'height.inches')),
-                    switchMap(control => {
+                    switchMap(() => {
                         return this._fds.getFormControl('form-1', 'height.feet').pipe(
-                            switchMap(control2 => this._fds.setDisabled(control, control2.value > 10))
+                            switchMap(control2 => this._fds.setDisabled('form-1', 'height.inches', control2.value > 10))
                         );
                     }),
                     tap(v => console.log(v.value)),
                     switchMap(v => this._fds.isRequired(v)),
                     tap(b => console.log(b)),
                     switchMap(() => this._fds.setValidators('form-1', 'height.inches', Validators.required)),
-                    switchMap(v => this._fds.isRequired(v)),
+                    switchMap(v => this._fds.isRequired('form-1', 'lastName')),
                     tap(b => console.log(b))
                 )
                 .subscribe()
