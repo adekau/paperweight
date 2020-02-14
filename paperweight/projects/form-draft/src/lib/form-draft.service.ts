@@ -1,7 +1,8 @@
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { AbstractControl, FormControl, ValidatorFn } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
 import { AbstractFormControl, IFormDraftOptions } from 'projects/contracts/src/public-api';
+import { deepCompare } from 'projects/utility/src/public-api';
 import { identity, interval, Observable, of, throwError } from 'rxjs';
 import { debounce, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhile, tap } from 'rxjs/operators';
 
@@ -17,44 +18,30 @@ export const FORM_DRAFT_OPTIONS = new InjectionToken<IFormDraftOptions>('FORM_DR
 export class FormDraftService {
 
     constructor(
-        private idbService: IndexedDBService,
-        private formDraftStore: FormDraftStore,
-        private formDraftQuery: FormDraftQuery,
-        @Optional() @Inject(FORM_DRAFT_OPTIONS) private formDraftOptions: IFormDraftOptions
+        private _idbService: IndexedDBService,
+        private _formDraftStore: FormDraftStore,
+        private _formDraftQuery: FormDraftQuery,
+        @Optional() @Inject(FORM_DRAFT_OPTIONS) private _formDraftOptions: IFormDraftOptions
     ) { }
 
     public saveDraftAsync<T>(formIdentifier: string, draft: T): Observable<IDBValidKey> {
-        return this.idbService.put({ id: formIdentifier, ...draft });
+        return this._idbService.put({ id: formIdentifier, ...draft });
+    }
+
+    public deleteDraftAsync(formIdentifier: IDBValidKey): Observable<any> {
+        return this._idbService.delete(formIdentifier);
     }
 
     public getDraftAsync(formIdentifier: IDBValidKey): Observable<any> {
-        return this.idbService.get(formIdentifier);
+        return this._idbService.get(formIdentifier);
     }
 
     public getAllDraftsAsync(): Observable<any> {
-        return this.idbService.getAll();
-    }
-
-    public getForm(formName: string): Observable<AbstractFormGroup> {
-        return this.formDraftQuery.forms$
-            .pipe(
-                map(state => state.forms[formName])
-            );
-    }
-
-    public hasForm(formName: string): boolean {
-        return !!this.formDraftQuery.getValue().forms[formName];
-    }
-
-    public selectHasForm(formName: string): Observable<boolean> {
-        return this.formDraftQuery.forms$
-            .pipe(
-                map(state => !!state.forms[formName])
-            );
+        return this._idbService.getAll();
     }
 
     public clearAllDrafts(): Observable<void> {
-        return this.idbService.clearAll();
+        return this._idbService.clearAll();
     }
 
     /**
@@ -62,30 +49,30 @@ export class FormDraftService {
      * @param formName The form's unique identifier
      */
     public getValueChanges(formName: string, debounceInterval: number = 0): Observable<any> {
-        return this.getForm(formName)
+        return this._formDraftQuery.getForm(formName)
             .pipe(
-                takeWhile(() => this.hasForm(formName)),
+                takeWhile(() => this._formDraftQuery.hasFormSync(formName)),
                 switchMap(form => form.valueChanges),
                 (
                     debounceInterval
                         ? debounce(() => interval(debounceInterval))
-                        // no-op if debounceInterval = 0
+                        // do nothing if debounceInterval = 0
                         : identity
                 )
             );
     }
 
     public getAllFormControls(formName: string): Observable<AbstractFormGroup['controls']> {
-        return this.getForm(formName)
+        return this._formDraftQuery.getForm(formName)
             .pipe(
                 pluck('controls')
             );
     }
 
-    public getFormControl(formName: string, path: string): Observable<AbstractFormControl> {
+    public getFormControl(formName: string, path: string | string[]): Observable<AbstractFormControl> {
         return this.getAllFormControls(formName)
             .pipe(
-                this.resolveFormControl(path),
+                this._resolveFormControl(path),
                 distinctUntilChanged(deepCompare())
             );
     }
@@ -97,7 +84,42 @@ export class FormDraftService {
         return of(control);
     }
 
-    private resolveFormControl(path: string | string[]) {
+    public isRequired(formName: string, path: string | string[]): Observable<boolean>;
+    public isRequired(control: AbstractFormControl): Observable<boolean>;
+    public isRequired(...args: any[]): Observable<boolean> {
+        const control = this._formControlOrResolve(...args);
+
+        return control
+            .pipe(
+                map(con => (con as AbstractControl).validator
+                    ? (con as AbstractControl).validator(con as AbstractControl)
+                    : {}),
+                map(ve => Object.prototype.hasOwnProperty.call(ve, 'required'))
+            );
+    }
+
+    public setValidators(
+        formName: string,
+        path: string | string[],
+        validators: ValidatorFn | ValidatorFn[]
+    ): Observable<AbstractFormControl>;
+    public setValidators(control: AbstractFormControl, validators: ValidatorFn | ValidatorFn[]): Observable<AbstractFormControl>;
+    public setValidators(...args: any[]): Observable<AbstractFormControl> {
+        const control: Observable<AbstractFormControl> = this._formControlOrResolve(...args);
+        let validators: ValidatorFn | ValidatorFn[];
+
+        if (typeof args[0] === 'string')
+            validators = args[2];
+        else
+            validators = args[1];
+
+        return control.pipe(
+            map(c => (c as AbstractControl).setValidators(validators)),
+            flatMap(() => control)
+        );
+    }
+
+    private _resolveFormControl(path: string | string[]) {
         return (source: Observable<AbstractFormGroup['controls']>): Observable<AbstractFormControl> => {
             const [first, ...rest] = Array.isArray(path)
                 ? path
@@ -113,18 +135,25 @@ export class FormDraftService {
                 flatMap(all => Object.prototype.hasOwnProperty.call(all[first], 'controls')
                     ? of((all[first] as AbstractFormGroup).controls)
                     : throwError('Form control path was expecting a form group.')),
-                this.resolveFormControl(rest)
+                this._resolveFormControl(rest)
             );
         };
     }
 
+    private _formControlOrResolve(...args: any[]): Observable<AbstractFormControl> {
+        if (typeof args[0] === 'string')
+            return this.getFormControl(args[0], args[1]);
+        else
+            return of(args[0]);
+    }
+
     public register(formIdentifier: string, form: AbstractFormGroup): Observable<string> {
-        if (this.hasForm(formIdentifier)) {
+        if (this._formDraftQuery.hasFormSync(formIdentifier)) {
             console.warn('A form has already been registered with identifier', formIdentifier);
             return throwError('A form has already been registered with identifier' + formIdentifier);
         }
 
-        return of<string>(this.formDraftStore.update({
+        return of<string>(this._formDraftStore.update({
             forms: {
                 [formIdentifier]: form
             },
@@ -132,7 +161,11 @@ export class FormDraftService {
             subscriptions: {
                 [formIdentifier]: form.valueChanges
                     .pipe(
-                        debounce(() => interval(this.formDraftOptions ? this.formDraftOptions.debounceInterval : 3000)),
+                        debounce(() => interval(
+                            this._formDraftOptions
+                                ? this._formDraftOptions.debounceInterval
+                                : 3000)
+                        ),
                         switchMap(v => this.saveDraftAsync(formIdentifier, v))
                     )
                     .subscribe()
@@ -144,12 +177,12 @@ export class FormDraftService {
     }
 
     public unregister(formIdentifier: string): Observable<void> {
-        if (!this.hasForm(formIdentifier)) {
+        if (!this._formDraftQuery.hasFormSync(formIdentifier)) {
             console.warn('No form is registered with identifier', formIdentifier);
             return throwError('No form is registered with identifier' + formIdentifier);
         }
 
-        return this.formDraftQuery
+        return this._formDraftQuery
             .select()
             .pipe(
                 tap(state =>
@@ -158,7 +191,7 @@ export class FormDraftService {
                         : void 0
                 ),
                 map(() => {
-                    return this.formDraftStore.update(state => ({
+                    return this._formDraftStore.update(state => ({
                         forms: {
                             ...(state.forms || {}),
                             [formIdentifier]: undefined
@@ -174,13 +207,9 @@ export class FormDraftService {
     }
 
     public getRegisteredForms(): Observable<AbstractFormGroup[]> {
-        return this.formDraftQuery.forms$
+        return this._formDraftQuery.forms$
             .pipe(
-                map(state => Object.keys(state.forms).map(key => state.forms[key]))
+                map(forms => Object.keys(forms).map(key => forms[key]))
             );
     }
-}
-
-function deepCompare() {
-    return (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 }

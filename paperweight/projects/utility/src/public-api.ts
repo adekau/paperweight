@@ -7,3 +7,4 @@ export { instanceOfAny } from './lib/instance-of-any';
 export { Instantiable } from './lib/instantiable';
 export { Constructor, Func } from './lib/types';
 export { deepCopy } from './lib/deepCopy';
+export { deepCompare } from './lib/deepCompare';

@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormDraftService } from 'projects/form-draft/src/public-api';
 import { of, SubscriptionLike } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -39,7 +39,12 @@ export class AppComponent implements OnDestroy {
                             switchMap(control2 => this._fds.setDisabled(control, control2.value > 10))
                         );
                     }),
-                    tap(v => console.log(v.value))
+                    tap(v => console.log(v.value)),
+                    switchMap(v => this._fds.isRequired(v)),
+                    tap(b => console.log(b)),
+                    switchMap(() => this._fds.setValidators('form-1', 'height.inches', Validators.required)),
+                    switchMap(v => this._fds.isRequired(v)),
+                    tap(b => console.log(b))
                 )
                 .subscribe()
         );
