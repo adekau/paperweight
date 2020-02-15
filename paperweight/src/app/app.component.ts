@@ -2,6 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PaperweightService } from 'projects/forms/src/public-api';
 import { fromEvent, SubscriptionLike } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-root',
@@ -28,22 +29,11 @@ export class AppComponent implements OnDestroy {
 
         this._subscriptions.push(
             this._paperweightService.register('form-1', this.form)
-                // .pipe(
-                //     switchMap(name => this._fds.getValueChanges(name)),
-                //     switchMap(() => this._fds.getAllDraftsAsync()),
-                //     tap(v => console.log(v)),
-                //     switchMap(() => {
-                //         return this._fds.getFormControl('form-1', 'height.feet').pipe(
-                //             switchMap(control2 => this._fds.setDisabled('form-1', 'height.inches', control2.value > 10))
-                //         );
-                //     }),
-                //     tap(v => console.log(v.value)),
-                //     switchMap(v => this._fds.isRequired(v)),
-                //     tap(b => console.log(b)),
-                //     switchMap(() => this._fds.setValidators('form-1', 'height.inches', Validators.required)),
-                //     switchMap(v => this._fds.isRequired('form-1', 'lastName')),
-                //     tap(b => console.log(b))
-                // )
+                .pipe(
+                    switchMap(name => this._paperweightService.getValueChanges(name)),
+                    switchMap(() => this._paperweightService.getAllDraftsAsync()),
+                    tap(v => console.log(v))
+                )
                 .subscribe()
         );
 
@@ -55,7 +45,7 @@ export class AppComponent implements OnDestroy {
                 ])
             .do(c => c.from('form-1', 'firstName').if(v => v === 'Alex'),
                 action => action.setValue('form-1', 'lastName', 'Dekau'))
-            .do(c => c.from('form-1', 'height.feet').if(v => v > 200).once(),
+            .do(c => c.if(v => v > 200).from('form-1', 'height.feet').once(),
                 action => action.setValue('form-1', 'firstName', 'Bob'))
             .compile();
 
