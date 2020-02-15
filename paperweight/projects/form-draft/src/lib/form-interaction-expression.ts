@@ -1,6 +1,6 @@
 import { ValidatorFn } from '@angular/forms';
 import { merge, Observable, of, Subject } from 'rxjs';
-import { flatMap, take, takeWhile, takeUntil } from 'rxjs/operators';
+import { flatMap, takeWhile } from 'rxjs/operators';
 
 import { FormDraftService } from './form-draft.service';
 import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
@@ -29,6 +29,7 @@ interface ActionFns {
 }
 
 export class FormInteractionExpression {
+    private static _eventKeyCount: number = 0;
     private _store: FormInteractionExpressionStore;
     private _query: FormInteractionExpressionQuery;
 
@@ -59,12 +60,7 @@ export class FormInteractionExpression {
                 : of(v))
         );
 
-        this._store.update(state => ({
-            observers: {
-                ...(state.observers || {}),
-                [key]: obs$
-            }
-        }));
+        this._updateStore(key, obs$);
 
         return this;
     }
@@ -84,20 +80,40 @@ export class FormInteractionExpression {
         const obs$ = controlVc$.pipe(
             takeWhile(v => !predicate(v), true),
             flatMap(v => predicate(v)
-            ? Array.isArray(actions)
-                ? merge(...(actions.map(ac => ac())))
-                : actions()
-            : of(v))
+                ? Array.isArray(actions)
+                    ? merge(...(actions.map(ac => ac())))
+                    : actions()
+                : of(v))
         );
 
+        this._updateStore(key, obs$);
+
+        return this;
+    }
+
+    public event<T>(
+        subject: Subject<T>,
+        action: (action: ActionFns) => ActionFn | ActionFn[]
+    ): this {
+        const actions = action(this._actionFns());
+        const obs$ = subject.pipe(
+            flatMap(() => Array.isArray(actions)
+                ? merge(...(actions.map(ac => ac())))
+                : actions())
+        );
+
+        this._updateStore((++FormInteractionExpression._eventKeyCount).toString(), obs$);
+
+        return this;
+    }
+
+    private _updateStore(key: string, val: Observable<any>): void {
         this._store.update(state => ({
             observers: {
                 ...(state.observers || {}),
-                [key]: obs$
+                [key]: val
             }
         }));
-
-        return this;
     }
 
     public compile(): Observable<any> {
