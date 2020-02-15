@@ -1,28 +1,28 @@
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
-import { AbstractControl, FormControl, ValidatorFn } from '@angular/forms';
+import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
-import { AbstractFormControl, IFormDraftOptions } from 'projects/contracts/src/public-api';
+import { AbstractFormControl, IFormDraftOptions as IPaperweightOptions } from 'projects/contracts/src/public-api';
 import { deepCompare } from 'projects/utility/src/public-api';
 import { identity, interval, Observable, of, throwError } from 'rxjs';
 import { debounce, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhile, tap } from 'rxjs/operators';
 
-import { IndexedDBService } from './indexed-db.service';
-import { FormDraftQuery } from './queries/form-draft.query';
-import { FormDraftStore } from './stores/form-draft.store';
 import { FormInteractionExpression } from './form-interaction-expression';
+import { IndexedDBService } from './indexed-db.service';
+import { FormDraftQuery as PaperweightQuery } from './queries/form-draft.query';
+import { FormDraftStore as PaperweightStore } from './stores/form-draft.store';
 
-export const FORM_DRAFT_OPTIONS = new InjectionToken<IFormDraftOptions>('FORM_DRAFT_OPTIONS');
+export const PAPERWEIGHT_OPTIONS = new InjectionToken<IPaperweightOptions>('FORM_DRAFT_OPTIONS');
 
 @Injectable({
     providedIn: 'root'
 })
-export class FormDraftService {
+export class PaperweightService {
 
     constructor(
         private _idbService: IndexedDBService,
-        private _formDraftStore: FormDraftStore,
-        private _formDraftQuery: FormDraftQuery,
-        @Optional() @Inject(FORM_DRAFT_OPTIONS) private _formDraftOptions: IFormDraftOptions
+        private _paperweightStore: PaperweightStore,
+        private _paperweightQuery: PaperweightQuery,
+        @Optional() @Inject(PAPERWEIGHT_OPTIONS) private _paperweightOptions: IPaperweightOptions
     ) { }
 
     public saveDraftAsync<T>(formIdentifier: string, draft: T): Observable<IDBValidKey> {
@@ -54,9 +54,9 @@ export class FormDraftService {
      * @param formName The form's unique identifier
      */
     public getValueChanges(formName: string, debounceInterval: number = 0): Observable<any> {
-        return this._formDraftQuery.getForm(formName)
+        return this._paperweightQuery.getForm(formName)
             .pipe(
-                takeWhile(() => this._formDraftQuery.hasFormSync(formName)),
+                takeWhile(() => this._paperweightQuery.hasFormSync(formName)),
                 switchMap(form => form.valueChanges),
                 (
                     debounceInterval
@@ -91,7 +91,7 @@ export class FormDraftService {
 
 
     public getAllFormControls(formName: string): Observable<AbstractFormGroup['controls']> {
-        return this._formDraftQuery.getForm(formName)
+        return this._paperweightQuery.getForm(formName)
             .pipe(
                 pluck('controls')
             );
@@ -208,12 +208,12 @@ export class FormDraftService {
     }
 
     public register(formIdentifier: string, form: AbstractFormGroup): Observable<string> {
-        if (this._formDraftQuery.hasFormSync(formIdentifier)) {
+        if (this._paperweightQuery.hasFormSync(formIdentifier)) {
             console.warn('A form has already been registered with identifier', formIdentifier);
             return throwError('A form has already been registered with identifier' + formIdentifier);
         }
 
-        return of<string>(this._formDraftStore.update(state => ({
+        return of<string>(this._paperweightStore.update(state => ({
             forms: {
                 ...(state.forms || {}),
                 [formIdentifier]: form
@@ -224,8 +224,8 @@ export class FormDraftService {
                 [formIdentifier]: form.valueChanges
                     .pipe(
                         debounce(() => interval(
-                            this._formDraftOptions
-                                ? this._formDraftOptions.debounceInterval
+                            this._paperweightOptions
+                                ? this._paperweightOptions.debounceInterval
                                 : 3000)
                         ),
                         switchMap(v => this.saveDraftAsync(formIdentifier, v))
@@ -239,12 +239,12 @@ export class FormDraftService {
     }
 
     public unregister(formIdentifier: string): Observable<void> {
-        if (!this._formDraftQuery.hasFormSync(formIdentifier)) {
+        if (!this._paperweightQuery.hasFormSync(formIdentifier)) {
             console.warn('No form is registered with identifier', formIdentifier);
             return throwError('No form is registered with identifier' + formIdentifier);
         }
 
-        return this._formDraftQuery
+        return this._paperweightQuery
             .select()
             .pipe(
                 tap(state =>
@@ -253,7 +253,7 @@ export class FormDraftService {
                         : void 0
                 ),
                 map(() => {
-                    return this._formDraftStore.update(state => ({
+                    return this._paperweightStore.update(state => ({
                         forms: {
                             ...(state.forms || {}),
                             [formIdentifier]: undefined
@@ -269,7 +269,7 @@ export class FormDraftService {
     }
 
     public getRegisteredForms(): Observable<AbstractFormGroup[]> {
-        return this._formDraftQuery.forms$
+        return this._paperweightQuery.forms$
             .pipe(
                 map(forms => Object.keys(forms).map(key => forms[key]))
             );

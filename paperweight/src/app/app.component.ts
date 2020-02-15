@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { FormDraftService } from 'projects/form-draft/src/public-api';
+import { PaperweightService } from 'projects/form-draft/src/public-api';
 import { fromEvent, SubscriptionLike } from 'rxjs';
 
 @Component({
@@ -15,7 +15,7 @@ export class AppComponent implements OnDestroy {
 
     constructor(
         private _formBuilder: FormBuilder,
-        private _fds: FormDraftService
+        private _paperweightService: PaperweightService
     ) {
         this.form = this._formBuilder.group({
             firstName: [''],
@@ -27,7 +27,7 @@ export class AppComponent implements OnDestroy {
         });
 
         this._subscriptions.push(
-            this._fds.register('form-1', this.form)
+            this._paperweightService.register('form-1', this.form)
                 // .pipe(
                 //     switchMap(name => this._fds.getValueChanges(name)),
                 //     switchMap(() => this._fds.getAllDraftsAsync()),
@@ -47,7 +47,7 @@ export class AppComponent implements OnDestroy {
                 .subscribe()
         );
 
-        const expression = this._fds.createExpression()
+        const expression = this._paperweightService.createExpression()
             .do(c => c.onEmit(fromEvent(document, 'click')),
                 action => [
                     action.setDisabled('form-1', 'height.inches', true),
@@ -71,7 +71,7 @@ export class AppComponent implements OnDestroy {
     }
 
     public async ngOnDestroy(): Promise<void> {
-        await this._fds.unregister('form-1').toPromise();
+        await this._paperweightService.unregister('form-1').toPromise();
         this._subscriptions.forEach(sub => sub.unsubscribe());
     }
 }

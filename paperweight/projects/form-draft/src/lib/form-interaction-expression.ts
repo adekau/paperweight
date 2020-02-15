@@ -4,7 +4,7 @@ import { merge, Observable } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 
 import { ConditionExpression } from './condition-expression';
-import { FormDraftService } from './form-draft.service';
+import { PaperweightService } from './form-draft.service';
 import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
 import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
 
@@ -13,7 +13,7 @@ export class FormInteractionExpression {
     private _query: FormInteractionExpressionQuery;
 
     constructor(
-        private _formDraftService: FormDraftService
+        private _paperweightService: PaperweightService
     ) {
         this._store = new FormInteractionExpressionStore();
         this._query = new FormInteractionExpressionQuery(this._store);
@@ -23,7 +23,7 @@ export class FormInteractionExpression {
         condition: (condition: ConditionExpression) => ConditionExpression,
         action: (action: ActionFns) => ActionFn | ActionFn[]
     ): this {
-        const cond = condition(new ConditionExpression(this._formDraftService));
+        const cond = condition(new ConditionExpression(this._paperweightService));
         const actions = action(this._actionFns());
         const obs$ = cond.compile();
         const key = cond.getKey();
@@ -61,11 +61,11 @@ export class FormInteractionExpression {
                 path: string | string[],
                 disabled: boolean
             ) => () => {
-                const control = this._formDraftService.getFormControl(formName, path);
+                const control = this._paperweightService.getFormControl(formName, path);
 
                 return control
                     .pipe(
-                        flatMap(c => this._formDraftService.setDisabled(c, disabled))
+                        flatMap(c => this._paperweightService.setDisabled(c, disabled))
                     );
             },
 
@@ -74,11 +74,11 @@ export class FormInteractionExpression {
                 path: string | string[],
                 value: T
             ) => () => {
-                const control = this._formDraftService.getFormControl(formName, path);
+                const control = this._paperweightService.getFormControl(formName, path);
 
                 return control
                     .pipe(
-                        flatMap(c => this._formDraftService.setValue(c, value))
+                        flatMap(c => this._paperweightService.setValue(c, value))
                     );
             },
 
@@ -87,11 +87,11 @@ export class FormInteractionExpression {
                 path: string | string[],
                 validators: ValidatorFn | ValidatorFn[]
             ) => () => {
-                const control = this._formDraftService.getFormControl(formName, path);
+                const control = this._paperweightService.getFormControl(formName, path);
 
                 return control
                     .pipe(
-                        flatMap(c => this._formDraftService.setValidators(c, validators))
+                        flatMap(c => this._paperweightService.setValidators(c, validators))
                     );
             }
         };

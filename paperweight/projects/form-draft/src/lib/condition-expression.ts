@@ -1,7 +1,7 @@
 import { identity, Observable } from 'rxjs';
 import { filter, switchMap, takeWhile, tap } from 'rxjs/operators';
 
-import { FormDraftService } from './form-draft.service';
+import { PaperweightService } from './form-draft.service';
 import { ConditionExpressionQuery } from './queries/condition-expression.query';
 import { ConditionExpressionStore } from './stores/condition-expression.store';
 
@@ -10,7 +10,7 @@ export class ConditionExpression {
     private _query: ConditionExpressionQuery;
 
     constructor(
-        private _formDraftService: FormDraftService
+        private _formDraftService: PaperweightService
     ) {
         this._store = new ConditionExpressionStore();
         this._query = new ConditionExpressionQuery(this._store);
