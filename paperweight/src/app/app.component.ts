@@ -29,24 +29,30 @@ export class AppComponent implements OnDestroy {
 
         this._subscriptions.push(
             this._fds.register('form-1', this.form)
-                .pipe(
-                    switchMap(name => this._fds.getValueChanges(name)),
-                    switchMap(() => this._fds.getAllDraftsAsync()),
-                    tap(v => console.log(v)),
-                    switchMap(() => {
-                        return this._fds.getFormControl('form-1', 'height.feet').pipe(
-                            switchMap(control2 => this._fds.setDisabled('form-1', 'height.inches', control2.value > 10))
-                        );
-                    }),
-                    tap(v => console.log(v.value)),
-                    switchMap(v => this._fds.isRequired(v)),
-                    tap(b => console.log(b)),
-                    switchMap(() => this._fds.setValidators('form-1', 'height.inches', Validators.required)),
-                    switchMap(v => this._fds.isRequired('form-1', 'lastName')),
-                    tap(b => console.log(b))
-                )
+                // .pipe(
+                //     switchMap(name => this._fds.getValueChanges(name)),
+                //     switchMap(() => this._fds.getAllDraftsAsync()),
+                //     tap(v => console.log(v)),
+                //     switchMap(() => {
+                //         return this._fds.getFormControl('form-1', 'height.feet').pipe(
+                //             switchMap(control2 => this._fds.setDisabled('form-1', 'height.inches', control2.value > 10))
+                //         );
+                //     }),
+                //     tap(v => console.log(v.value)),
+                //     switchMap(v => this._fds.isRequired(v)),
+                //     tap(b => console.log(b)),
+                //     switchMap(() => this._fds.setValidators('form-1', 'height.inches', Validators.required)),
+                //     switchMap(v => this._fds.isRequired('form-1', 'lastName')),
+                //     tap(b => console.log(b))
+                // )
                 .subscribe()
         );
+
+        const expression = this._fds.createExpression()
+            .when('form-1', 'height.feet', v => v > 200, a => a.setDisabled('form-1', 'height.inches', true))
+            .when('form-1', 'firstName', v => v === 'Alex', a => a.setDisabled('form-1', 'lastName', true))
+            .compile();
+        this._subscriptions.push(expression.subscribe());
     }
 
     public onSubmit(data: any): void {

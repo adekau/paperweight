@@ -9,6 +9,7 @@ import { debounce, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhi
 import { IndexedDBService } from './indexed-db.service';
 import { FormDraftQuery } from './queries/form-draft.query';
 import { FormDraftStore } from './stores/form-draft.store';
+import { FormInteractionExpression } from './form-interaction-expression';
 
 export const FORM_DRAFT_OPTIONS = new InjectionToken<IFormDraftOptions>('FORM_DRAFT_OPTIONS');
 
@@ -44,6 +45,10 @@ export class FormDraftService {
         return this._idbService.clearAll();
     }
 
+    public createExpression(): FormInteractionExpression {
+        return new FormInteractionExpression(this);
+    }
+
     /**
      * Gets a debounced observable emits when the form value changes.
      * @param formName The form's unique identifier
@@ -61,6 +66,29 @@ export class FormDraftService {
                 )
             );
     }
+
+    public getControlValueChanges(formName: string, path: string | string[], debounceInterval?: number): Observable<any>;
+    public getControlValueChanges(control: AbstractFormControl, debounceInterval?: number): Observable<any>;
+    public getControlValueChanges(...args: any[]): Observable<any> {
+        const control = this._formControlOrResolve(...args);
+        let debounceInterval: number;
+
+        if (typeof args[0] === 'string')
+            debounceInterval = args[2] || 0;
+        else
+            debounceInterval = args[1] || 0;
+
+        return control
+            .pipe(
+                switchMap(c => (c as AbstractControl).valueChanges),
+                (
+                    debounceInterval
+                        ? debounce(() => interval(debounceInterval))
+                        : identity
+                )
+            );
+    }
+
 
     public getAllFormControls(formName: string): Observable<AbstractFormGroup['controls']> {
         return this._formDraftQuery.getForm(formName)
@@ -168,12 +196,14 @@ export class FormDraftService {
             return throwError('A form has already been registered with identifier' + formIdentifier);
         }
 
-        return of<string>(this._formDraftStore.update({
+        return of<string>(this._formDraftStore.update(state => ({
             forms: {
+                ...(state.forms || {}),
                 [formIdentifier]: form
             },
 
             subscriptions: {
+                ...(state.subscriptions || {}),
                 [formIdentifier]: form.valueChanges
                     .pipe(
                         debounce(() => interval(
@@ -185,7 +215,7 @@ export class FormDraftService {
                     )
                     .subscribe()
             }
-        }))
+        })))
             .pipe(
                 map(() => formIdentifier)
             );
