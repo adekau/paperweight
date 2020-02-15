@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormDraftService } from 'projects/form-draft/src/public-api';
-import { of, SubscriptionLike } from 'rxjs';
+import { of, SubscriptionLike, fromEvent } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 
 @Component({
@@ -48,18 +48,22 @@ export class AppComponent implements OnDestroy {
                 .subscribe()
         );
 
-        const expression = this._fds.createExpression()
-            .when('form-1', 'height.feet', v => v > 200, a => [
-                a.setDisabled('form-1', 'height.inches', true),
-                a.setValue('form-1', 'firstName', 'Alex')
-            ])
-            .when('form-1', 'height.feet', v => v <= 200, a => a.setDisabled('form-1', 'height.inches', false))
-            .when('form-1', 'firstName', v => v === 'Alex', a => a.setDisabled('form-1', 'lastName', true))
-            .compile();
-
         // const expression = this._fds.createExpression()
-        //     .once('form-1', 'firstName', v => v === 'Alex', x => x.setValue('form-1', 'lastName', 'Dekau'))
+        //     .when('form-1', 'height.feet', v => v > 200, a => [
+        //         a.setDisabled('form-1', 'height.inches', true),
+        //         a.setValue('form-1', 'firstName', 'Alex')
+        //     ])
+        //     .when('form-1', 'height.feet', v => v <= 200, a => a.setDisabled('form-1', 'height.inches', false))
+        //     .when('form-1', 'firstName', v => v === 'Alex', a => a.setDisabled('form-1', 'lastName', true))
         //     .compile();
+
+        const expression = this._fds.createExpression()
+            .once('form-1', 'firstName', v => v === 'Alex', x => x.setValue('form-1', 'lastName', 'Dekau'))
+            .onEmit(fromEvent(document, 'click'), a => [
+                a.setValue('form-1', 'height.inches', 11),
+                a.setDisabled('form-1', 'height.feet', true)
+            ])
+            .compile();
 
         this._subscriptions.push(expression.subscribe());
     }
@@ -72,10 +76,8 @@ export class AppComponent implements OnDestroy {
         this.show ^= 1;
     }
 
-    public ngOnDestroy(): void {
-        this._subscriptions.push(
-            this._fds.unregister('form-1').subscribe()
-        );
+    public async ngOnDestroy(): Promise<void> {
+        await this._fds.unregister('form-1').toPromise();
         this._subscriptions.forEach(sub => sub.unsubscribe());
     }
 }

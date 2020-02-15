@@ -91,12 +91,12 @@ export class FormInteractionExpression {
         return this;
     }
 
-    public event<T>(
-        subject: Subject<T>,
+    public onEmit<T>(
+        event: Observable<T>,
         action: (action: ActionFns) => ActionFn | ActionFn[]
     ): this {
         const actions = action(this._actionFns());
-        const obs$ = subject.pipe(
+        const obs$ = event.pipe(
             flatMap(() => Array.isArray(actions)
                 ? merge(...(actions.map(ac => ac())))
                 : actions())
