@@ -4,7 +4,7 @@ import { merge, Observable } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 
 import { ConditionExpression } from './condition-expression';
-import { PaperweightService } from './form-draft.service';
+import { PaperweightService } from './paperweight.service';
 import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
 import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
 

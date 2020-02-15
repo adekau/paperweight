@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PaperweightService } from 'projects/form-draft/src/public-api';
+import { PaperweightService } from 'projects/forms/src/public-api';
 import { fromEvent, SubscriptionLike } from 'rxjs';
 
 @Component({

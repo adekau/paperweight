@@ -1,7 +1,7 @@
 import { identity, Observable } from 'rxjs';
-import { filter, switchMap, takeWhile, tap } from 'rxjs/operators';
+import { filter, switchMap, takeWhile } from 'rxjs/operators';
 
-import { PaperweightService } from './form-draft.service';
+import { PaperweightService } from './paperweight.service';
 import { ConditionExpressionQuery } from './queries/condition-expression.query';
 import { ConditionExpressionStore } from './stores/condition-expression.store';
 
@@ -10,7 +10,7 @@ export class ConditionExpression {
     private _query: ConditionExpressionQuery;
 
     constructor(
-        private _formDraftService: PaperweightService
+        private _paperweightService: PaperweightService
     ) {
         this._store = new ConditionExpressionStore();
         this._query = new ConditionExpressionQuery(this._store);
@@ -30,7 +30,7 @@ export class ConditionExpression {
 
     public from(formName: string, path: string | string[]): this {
         this._store.update({
-            source$: this._formDraftService.getControlValueChanges(formName, path),
+            source$: this._paperweightService.getControlValueChanges(formName, path),
             key: this._transformKey(formName, path)
         });
 

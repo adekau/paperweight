@@ -2,7 +2,7 @@
  * Public API Surface of drafts
  */
 
-export * from './lib/form-draft.service';
+export * from './lib/paperweight.service';
 export * from './lib/form-draft.module';
 export * from './lib/indexed-db.service';
 export * from './lib/form-interaction-expression';
