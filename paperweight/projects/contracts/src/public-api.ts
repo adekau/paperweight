@@ -9,3 +9,5 @@ export { IFormDraftOptions } from './lib/form-draft-options';
 export { IFormDraftState } from './lib/form-draft-state';
 export { IStaticCompressor } from './lib/compressor-like';
 export { IFormInteractionExpressionState } from './lib/form-interaction-expression-state';
+export { ActionFns } from './lib/action-fns';
+export { ActionFn } from './lib/action-fn';

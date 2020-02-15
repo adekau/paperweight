@@ -1,35 +1,14 @@
 import { ValidatorFn } from '@angular/forms';
-import { merge, Observable, of, Subject } from 'rxjs';
-import { flatMap, takeWhile } from 'rxjs/operators';
+import { ActionFn, ActionFns } from 'projects/contracts/src/public-api';
+import { merge, Observable } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 
+import { ConditionExpression } from './condition-expression';
 import { FormDraftService } from './form-draft.service';
 import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
 import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
 
-export type ActionFn = () => Observable<any>;
-
-interface ActionFns {
-    setDisabled: (
-        formName: string,
-        path: string | string[],
-        disabled: boolean
-    ) => ActionFn;
-
-    setValue: <T>(
-        formName: string,
-        path: string | string[],
-        value: T
-    ) => ActionFn;
-
-    setValidators: (
-        formName: string,
-        path: string | string[],
-        validators: ValidatorFn | ValidatorFn[]
-    ) => ActionFn;
-}
-
 export class FormInteractionExpression {
-    private static _eventKeyCount: number = 0;
     private _store: FormInteractionExpressionStore;
     private _query: FormInteractionExpressionQuery;
 
@@ -40,69 +19,23 @@ export class FormInteractionExpression {
         this._query = new FormInteractionExpressionQuery(this._store);
     }
 
-    public when(
-        formName: string,
-        path: string | string[],
-        predicate: (value: any) => boolean,
+    public do(
+        condition: (condition: ConditionExpression) => ConditionExpression,
         action: (action: ActionFns) => ActionFn | ActionFn[]
     ): this {
-        const key = this._transformKey(formName, path);
-        const controlVc$ = this._query.getObserversSync()[key]
-            || this._formDraftService.getControlValueChanges(formName, path);
-
+        const cond = condition(new ConditionExpression(this._formDraftService));
         const actions = action(this._actionFns());
+        const obs$ = cond.compile();
+        const key = cond.getKey();
 
-        const obs$ = controlVc$.pipe(
-            flatMap(v => predicate(v)
-                ? Array.isArray(actions)
+        const final$ = obs$
+            .pipe(
+                flatMap(() => Array.isArray(actions)
                     ? merge(...(actions.map(ac => ac())))
-                    : actions()
-                : of(v))
-        );
+                    : actions())
+            );
 
-        this._updateStore(key, obs$);
-
-        return this;
-    }
-
-    public once(
-        formName: string,
-        path: string | string[],
-        predicate: (value: any) => boolean,
-        action: (action: ActionFns) => ActionFn | ActionFn[]
-    ): this {
-        const key = this._transformKey(formName, path);
-        const controlVc$ = this._query.getObserversSync()[key]
-            || this._formDraftService.getControlValueChanges(formName, path);
-
-        const actions = action(this._actionFns());
-
-        const obs$ = controlVc$.pipe(
-            takeWhile(v => !predicate(v), true),
-            flatMap(v => predicate(v)
-                ? Array.isArray(actions)
-                    ? merge(...(actions.map(ac => ac())))
-                    : actions()
-                : of(v))
-        );
-
-        this._updateStore(key, obs$);
-
-        return this;
-    }
-
-    public onEmit<T>(
-        event: Observable<T>,
-        action: (action: ActionFns) => ActionFn | ActionFn[]
-    ): this {
-        const actions = action(this._actionFns());
-        const obs$ = event.pipe(
-            flatMap(() => Array.isArray(actions)
-                ? merge(...(actions.map(ac => ac())))
-                : actions())
-        );
-
-        this._updateStore((++FormInteractionExpression._eventKeyCount).toString(), obs$);
+        this._updateStore(key, final$);
 
         return this;
     }
@@ -162,10 +95,5 @@ export class FormInteractionExpression {
                     );
             }
         };
-    }
-
-    private _transformKey(formName: string, path: string | string[]) {
-        const p = Array.isArray(path) ? path.join('.') : path;
-        return `${formName}:${p}`;
     }
 }
