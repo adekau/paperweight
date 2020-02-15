@@ -9,6 +9,7 @@ export type ActionFn = () => Observable<any>;
 
 interface ActionFns {
     setDisabled: (formName: string, path: string | string[], disabled: boolean) => ActionFn;
+    setValue: <T>(formName: string, path: string | string[], value: T) => ActionFn;
 }
 
 export class FormInteractionExpression {
@@ -26,12 +27,15 @@ export class FormInteractionExpression {
         formName: string,
         path: string | string[],
         predicate: (value: any) => boolean,
-        action: (action: ActionFns) => ActionFn /*| ActionFn[]*/
+        action: (action: ActionFns) => ActionFn | ActionFn[]
     ): this {
         const controlVc$ = this._formDraftService.getControlValueChanges(formName, path);
+        const actions = action(this._actionFns());
         const obs$ = controlVc$.pipe(
             flatMap(v => predicate(v)
-                ? action(this._actionFns())()
+                ? Array.isArray(actions)
+                    ? merge(...(actions.map(ac => ac())))
+                    : actions()
                 : of(v))
         );
 
@@ -57,6 +61,14 @@ export class FormInteractionExpression {
 
                 return control.pipe(
                     flatMap(c => this._formDraftService.setDisabled(c, disabled))
+                );
+            },
+
+            setValue: <T>(formName: string, path: string | string[], value: T) => () => {
+                const control = this._formDraftService.getFormControl(formName, path);
+
+                return control.pipe(
+                    flatMap(c => this._formDraftService.setValue(c, value))
                 );
             }
         };

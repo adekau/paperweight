@@ -49,9 +49,13 @@ export class AppComponent implements OnDestroy {
         );
 
         const expression = this._fds.createExpression()
-            .when('form-1', 'height.feet', v => v > 200, a => a.setDisabled('form-1', 'height.inches', true))
+            .when('form-1', 'height.feet', v => v > 200, a => [
+                a.setDisabled('form-1', 'height.inches', true),
+                a.setValue('form-1', 'firstName', 'Alex')
+            ])
             .when('form-1', 'firstName', v => v === 'Alex', a => a.setDisabled('form-1', 'lastName', true))
             .compile();
+
         this._subscriptions.push(expression.subscribe());
     }
 

@@ -122,9 +122,26 @@ export class FormDraftService {
 
         return control
             .pipe(
-                tap(con => (con as FormControl)[disabled ? 'disable' : 'enable']({
+                tap(con => (con as AbstractControl)[disabled ? 'disable' : 'enable']({
                     emitEvent
                 }))
+            );
+    }
+
+    public setValue<T>(formName: string, path: string | string[], value: T): Observable<AbstractFormControl>;
+    public setValue<T>(control: AbstractFormControl, value: T): Observable<AbstractFormControl>;
+    public setValue(...args: any[]): Observable<AbstractFormControl> {
+        const control = this._formControlOrResolve(...args);
+        let value: any;
+
+        if (typeof args[0] === 'string')
+            value = args[2];
+        else
+            value = args[1];
+
+        return control
+            .pipe(
+                tap(con => (con as AbstractControl).setValue(value))
             );
     }
 
