@@ -30,7 +30,7 @@ export class AppComponent implements OnDestroy {
 
         this.form2 = this._formBuilder.group({
             address: [''],
-            phone: [''],
+            phone: ['', Validators.required],
             payment: this._formBuilder.group({
                 dollars: [''],
                 cents: ['']
@@ -63,15 +63,17 @@ export class AppComponent implements OnDestroy {
             .do(c => c.from('form-1', 'firstName').if(v => v === 'Alex'),
                 action => action.setValue('form-1', 'lastName', 'Dekau'))
             .do(c => c.if(v => v > 200).from('form-1', 'height.feet').once(),
-                action => action.setValue('form-1', 'firstName', 'Bob'))
+                action => action.setValue('form-1', 'firstName', 'Bob'));
 
         const expression2 = this._paperweightService.createExpression()
             .do(c => c.from('form-1', 'lastName').if(v => v > 200),
                 action => action.setDisabled('form-2', 'payment.dollars', true))
             .do(c => c.from('form-1', 'lastName').if(v => v <= 200),
                 action => action.setDisabled('form-2', 'payment.dollars', false))
-            .do(c => c.onEmit(fromEvent(document, 'click')),
-                action => action.setValue('form-2', 'payment.cents', 400));
+            .do(c => c.onEmit(fromEvent(document, 'click')).if(ev => ev.isTrusted),
+                action => action.setValue('form-2', 'payment.cents', 400))
+            .do(c => c.from('form-2', 'phone').if((_, control) => control.valid),
+                ac => ac.reset('form-2', 'payment.dollars'));
 
         this._subscriptions.push(
             expression.compile().subscribe(),

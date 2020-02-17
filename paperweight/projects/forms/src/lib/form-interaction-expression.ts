@@ -7,6 +7,8 @@ import { ConditionExpression } from './condition-expression';
 import { PaperweightService } from './paperweight.service';
 import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
 import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
+import { ConditionExpressionStore } from './stores/condition-expression.store';
+import { ConditionExpressionQuery } from './queries/condition-expression.query';
 
 export class FormInteractionExpression {
     private _store: FormInteractionExpressionStore;
@@ -23,7 +25,9 @@ export class FormInteractionExpression {
         condition: (condition: ConditionExpression) => ConditionExpression,
         action: (action: ActionFns) => ActionFn | ActionFn[]
     ): this {
-        const cond = condition(new ConditionExpression(this._paperweightService));
+        const store = new ConditionExpressionStore();
+        const query = new ConditionExpressionQuery(store);
+        const cond = condition(new ConditionExpression(store, query, this._paperweightService));
         const actions = action(this._actionFns());
         const key = cond.getKey();
         const obs$ = cond.compile();
@@ -81,6 +85,19 @@ export class FormInteractionExpression {
                 return control
                     .pipe(
                         flatMap(c => this._paperweightService.setValue(c, value))
+                    );
+            },
+
+            reset: <T = never>(
+                formName: string,
+                path: string | string[],
+                value?: T
+            ) => () => {
+                const control = this._paperweightService.getFormControl(formName, path);
+
+                return control
+                    .pipe(
+                        flatMap(c => this._paperweightService.reset(c, value))
                     );
             },
 

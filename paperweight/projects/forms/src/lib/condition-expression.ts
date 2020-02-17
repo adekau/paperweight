@@ -1,22 +1,35 @@
-import { identity, Observable } from 'rxjs';
-import { filter, switchMap, takeWhile } from 'rxjs/operators';
+import { AbstractFormControl } from 'projects/contracts/src/public-api';
+import { combineLatest, identity, Observable, of } from 'rxjs';
+import { filter, flatMap, switchMap, takeWhile } from 'rxjs/operators';
 
 import { PaperweightService } from './paperweight.service';
 import { ConditionExpressionQuery } from './queries/condition-expression.query';
 import { ConditionExpressionStore } from './stores/condition-expression.store';
 
-export class ConditionExpression {
-    private _store: ConditionExpressionStore;
-    private _query: ConditionExpressionQuery;
+export type EventPredicate<TSource> = (
+    val: TSource
+) => boolean;
+
+export type FormPredicate<TSource> = (
+    val: any,
+    control?: [TSource] extends [never]
+        ? AbstractFormControl
+        : undefined
+) => boolean;
+
+export class ConditionExpression<TSource = never> {
 
     constructor(
+        private _store: ConditionExpressionStore,
+        private _query: ConditionExpressionQuery,
         private _paperweightService: PaperweightService
-    ) {
-        this._store = new ConditionExpressionStore();
-        this._query = new ConditionExpressionQuery(this._store);
-    }
+    ) { }
 
-    public if(predicate: (val: any) => boolean): this {
+    public if(
+        predicate: [TSource] extends [never]
+            ? FormPredicate<TSource>
+            : EventPredicate<TSource>
+    ): this {
         this._store.update({ predicate });
 
         return this;
@@ -29,18 +42,20 @@ export class ConditionExpression {
     }
 
     public from(formName: string, path: string | string[]): this {
+        const control = this._paperweightService.getFormControl(formName, path);
         this._store.update({
-            source$: this._paperweightService.getControlValueChanges(formName, path),
-            key: this._transformKey(formName, path)
+            source$: this._paperweightService.getControlValueChanges(control),
+            key: this._transformKey(formName, path),
+            control
         });
 
         return this;
     }
 
-    public onEmit<T>(source: Observable<T>): this {
+    public onEmit<T>(source: Observable<T>): ConditionExpression<T> {
         this._store.update({ source$: source });
 
-        return this;
+        return new ConditionExpression<T>(this._store, this._query, this._paperweightService);
     }
 
     public compile(): Observable<any> {
@@ -49,10 +64,11 @@ export class ConditionExpression {
         return this._query.select()
             .pipe(
                 switchMap(state => state.source$),
-                filter(value => val.predicate(value)),
+                flatMap(value => combineLatest([of(value), val.control || of(undefined)])),
+                filter(([value, control]) => val.predicate(value, control)),
                 (
                     val.once
-                        ? takeWhile(value => !val.predicate(value), true)
+                        ? takeWhile(([value, control]) => !val.predicate(value, control), true)
                         : identity
                 )
             );

@@ -68,7 +68,10 @@ export class PaperweightService {
     }
 
     public getControlValueChanges(formName: string, path: string | string[], debounceInterval?: number): Observable<any>;
-    public getControlValueChanges(control: AbstractFormControl, debounceInterval?: number): Observable<any>;
+    public getControlValueChanges(
+        control: Observable<AbstractFormControl> | AbstractFormControl,
+        debounceInterval?: number
+    ): Observable<any>;
     public getControlValueChanges(...args: any[]): Observable<any> {
         const control = this._formControlOrResolve(...args);
         let debounceInterval: number;
@@ -145,6 +148,23 @@ export class PaperweightService {
             );
     }
 
+    public reset<T = never>(formName: string, path: string | string[], value?: T): Observable<AbstractFormControl>;
+    public reset<T = never>(control: AbstractFormControl, value?: T): Observable<AbstractFormControl>;
+    public reset(...args: any[]): Observable<AbstractFormControl> {
+        const control = this._formControlOrResolve(...args);
+        let value: any;
+
+        if (typeof args[0] === 'string')
+            value = args[2];
+        else
+            value = args[1];
+
+        return control
+            .pipe(
+                tap(con => (con as AbstractControl).reset(value))
+            );
+    }
+
     public isRequired(formName: string, path: string | string[]): Observable<boolean>;
     public isRequired(control: AbstractFormControl): Observable<boolean>;
     public isRequired(...args: any[]): Observable<boolean> {
@@ -203,6 +223,8 @@ export class PaperweightService {
     private _formControlOrResolve(...args: any[]): Observable<AbstractFormControl> {
         if (typeof args[0] === 'string')
             return this.getFormControl(args[0], args[1]);
+        else if (args[0] instanceof Observable)
+            return args[0];
         else
             return of(args[0]);
     }

@@ -15,6 +15,12 @@ export interface ActionFns {
         value: T
     ) => ActionFn;
 
+    reset: <T = never>(
+        formName: string,
+        path: string | string[],
+        value?: T
+    ) => ActionFn;
+
     setValidators: (
         formName: string,
         path: string | string[],
