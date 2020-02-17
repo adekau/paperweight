@@ -36,3 +36,41 @@
 
     </form>
 </div>
+
+<div *ngIf="show">
+    <form [formGroup]="form2" (ngSubmit)="onSubmit(form2.value)">
+
+        <div>
+            <label for="address">
+                Address
+            </label>
+            <input id="address" type="text" formControlName="address">
+        </div>
+
+        <div>
+            <label for="phone">
+                Phone
+            </label>
+            <input id="phone" type="text" formControlName="phone">
+        </div>
+
+        <div formGroupName="payment">
+            <div>
+                <label for="dollars">
+                    Dollars
+                </label>
+                <input id="dollars" type="text" formControlName="dollars">
+            </div>
+
+            <div>
+                <label for="cents">
+                    Cents
+                </label>
+                <input id="cents" type="text" formControlName="cents">
+            </div>
+        </div>
+
+        <button class="button" type="submit">Save</button>
+
+    </form>
+</div>

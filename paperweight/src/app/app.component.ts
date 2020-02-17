@@ -12,6 +12,7 @@ import { switchMap, tap } from 'rxjs/operators';
 export class AppComponent implements OnDestroy {
     private _subscriptions: SubscriptionLike[] = [];
     public form: FormGroup;
+    public form2: FormGroup;
     public show: number = 1;
 
     constructor(
@@ -27,8 +28,24 @@ export class AppComponent implements OnDestroy {
             })
         });
 
+        this.form2 = this._formBuilder.group({
+            address: [''],
+            phone: [''],
+            payment: this._formBuilder.group({
+                dollars: [''],
+                cents: ['']
+            })
+        });
+
         this._subscriptions.push(
             this._paperweightService.register('form-1', this.form)
+                .pipe(
+                    switchMap(name => this._paperweightService.getValueChanges(name)),
+                    switchMap(() => this._paperweightService.getAllDraftsAsync()),
+                    tap(v => console.log(v))
+                )
+                .subscribe(),
+            this._paperweightService.register('form-2', this.form2)
                 .pipe(
                     switchMap(name => this._paperweightService.getValueChanges(name)),
                     switchMap(() => this._paperweightService.getAllDraftsAsync()),
@@ -47,9 +64,19 @@ export class AppComponent implements OnDestroy {
                 action => action.setValue('form-1', 'lastName', 'Dekau'))
             .do(c => c.if(v => v > 200).from('form-1', 'height.feet').once(),
                 action => action.setValue('form-1', 'firstName', 'Bob'))
-            .compile();
 
-        this._subscriptions.push(expression.subscribe());
+        const expression2 = this._paperweightService.createExpression()
+            .do(c => c.from('form-1', 'lastName').if(v => v > 200),
+                action => action.setDisabled('form-2', 'payment.dollars', true))
+            .do(c => c.from('form-1', 'lastName').if(v => v <= 200),
+                action => action.setDisabled('form-2', 'payment.dollars', false))
+            .do(c => c.onEmit(fromEvent(document, 'click')),
+                action => action.setValue('form-2', 'payment.cents', 400));
+
+        this._subscriptions.push(
+            expression.compile().subscribe(),
+            expression2.compile().subscribe()
+        );
     }
 
     public onSubmit(data: any): void {
