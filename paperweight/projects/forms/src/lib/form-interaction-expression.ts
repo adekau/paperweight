@@ -1,7 +1,7 @@
 import { ValidatorFn } from '@angular/forms';
 import { ActionFn, ActionFns } from 'projects/contracts/src/public-api';
 import { merge, Observable, of } from 'rxjs';
-import { flatMap, mergeMapTo } from 'rxjs/operators';
+import { flatMap, mergeMapTo, ignoreElements } from 'rxjs/operators';
 
 import { ConditionExpression } from './condition-expression';
 import { PaperweightService } from './paperweight.service';
@@ -58,7 +58,10 @@ export class FormInteractionExpression {
 
     public compile(): Observable<any> {
         const observers = this._query.getObserversSync();
-        return merge(...Object.values(observers));
+        return merge(...Object.values(observers))
+            .pipe(
+                ignoreElements()
+            );
     }
 
     private _actionFns(): ActionFns {
