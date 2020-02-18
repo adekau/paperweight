@@ -1,5 +1,5 @@
 {
-  "name": "@paperweight/drafts",
+  "name": "@paperweight/forms",
   "version": "1.1.0-alpha.5",
   "peerDependencies": {
     "@angular/common": "^9.0.0",

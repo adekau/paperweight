@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1, 
+  "version": 1,
   "newProjectRoot": "projects",
   "projects": {
     "paperweight": {
@@ -244,38 +244,38 @@
         }
       }
     },
-    "form-draft": {
+    "forms": {
       "projectType": "library",
-      "root": "projects/form-draft",
-      "sourceRoot": "projects/form-draft/src",
+      "root": "projects/forms",
+      "sourceRoot": "projects/forms/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
-            "tsConfig": "projects/form-draft/tsconfig.lib.json",
-            "project": "projects/form-draft/ng-package.json"
+            "tsConfig": "projects/forms/tsconfig.lib.json",
+            "project": "projects/forms/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/form-draft/tsconfig.lib.prod.json"
+              "tsConfig": "projects/forms/tsconfig.lib.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/form-draft/src/test.ts",
-            "tsConfig": "projects/form-draft/tsconfig.spec.json",
-            "karmaConfig": "projects/form-draft/karma.conf.js"
+            "main": "projects/forms/src/test.ts",
+            "tsConfig": "projects/forms/tsconfig.spec.json",
+            "karmaConfig": "projects/forms/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/form-draft/tsconfig.lib.json",
-              "projects/form-draft/tsconfig.spec.json"
+              "projects/forms/tsconfig.lib.json",
+              "projects/forms/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
