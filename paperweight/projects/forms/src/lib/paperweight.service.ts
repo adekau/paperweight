@@ -63,7 +63,8 @@ export class PaperweightService {
                         ? debounceTime(debounceInterval)
                         // do nothing if debounceInterval = 0
                         : identity
-                )
+                ),
+                distinctUntilChanged(deepCompare()),
             );
     }
 
@@ -88,10 +89,10 @@ export class PaperweightService {
                     debounceInterval
                         ? debounceTime(debounceInterval)
                         : identity
-                )
+                ),
+                distinctUntilChanged(deepCompare())
             );
     }
-
 
     public getAllFormControls(formName: string): Observable<AbstractFormGroup['controls']> {
         return this._paperweightQuery.getForm(formName)
