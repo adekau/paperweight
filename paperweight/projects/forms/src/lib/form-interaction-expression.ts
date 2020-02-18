@@ -1,14 +1,14 @@
 import { ValidatorFn } from '@angular/forms';
 import { ActionFn, ActionFns } from 'projects/contracts/src/public-api';
 import { merge, Observable, of } from 'rxjs';
-import { flatMap, mergeMapTo, ignoreElements } from 'rxjs/operators';
+import { flatMap, ignoreElements, mergeMapTo } from 'rxjs/operators';
 
 import { ConditionExpression } from './condition-expression';
 import { PaperweightService } from './paperweight.service';
-import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
-import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
-import { ConditionExpressionStore } from './stores/condition-expression.store';
 import { ConditionExpressionQuery } from './queries/condition-expression.query';
+import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
+import { ConditionExpressionStore } from './stores/condition-expression.store';
+import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
 
 export class FormInteractionExpression {
     private _store: FormInteractionExpressionStore;
