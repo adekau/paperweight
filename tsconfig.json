@@ -1,45 +1,44 @@
 {
-    "exclude": [
-        "node_modules",
-        "dist",
-        "lib",
-        "__tests__",
-        "**/*.test*",
-        "**/*.spec*"
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2015",
+    "typeRoots": [
+      "node_modules/@types"
     ],
-    "compilerOptions": {
-        "skipLibCheck": false,
-        "target": "es6",
-        "module": "commonjs",
-        "lib": [
-            "es2017",
-            "dom",
-            "es2015.generator",
-            "es2015.iterable",
-            "es2015.promise",
-            "es2015.symbol",
-            "es2015.symbol.wellknown",
-            "esnext.asynciterable"
-        ],
-        "rootDir": "./",
-        "noUnusedLocals": true,
-        "noFallthroughCasesInSwitch": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "baseUrl": "./",
-        "composite": true,
-        "declarationMap": true,
-        "outDir": "lib",
-        "sourceMap": true,
-        "declaration": true,
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "pretty": true,
-        "strictNullChecks": true,
-        "noImplicitReturns": true,
-        "noUnusedParameters": true,
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "contracts": [
+        "dist/contracts/contracts",
+        "dist/contracts"
+      ],
+      "utility": [
+        "dist/utility/utility",
+        "dist/utility"
+      ],
+      "compression": [
+        "dist/compression/compression",
+        "dist/compression"
+      ],
+      "form-draft": [
+        "dist/form-draft/form-draft",
+        "dist/form-draft"
+      ]
     }
+  },
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true
+  }
 }

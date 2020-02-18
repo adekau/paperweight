@@ -1,48 +1,32 @@
-const realBrowser = process.env.TRAVIS;
+// Karma configuration file, see link for more information
+// https://karma-runner.github.io/1.0/config/configuration-file.html
 
-module.exports = (config) => {
+module.exports = function (config) {
   config.set({
-    frameworks: [ 'jasmine', 'karma-typescript' ],
+    basePath: '',
+    frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
-      'karma-jasmine',
-      'karma-chrome-launcher',
-      'karma-typescript',
-      'karma-spec-reporter'
+      require('karma-jasmine'),
+      require('karma-chrome-launcher'),
+      require('karma-jasmine-html-reporter'),
+      require('karma-coverage-istanbul-reporter'),
+      require('@angular-devkit/build-angular/plugins/karma')
     ],
-    karmaTypescriptConfig: {
-      tsconfig: "./tsconfig.json",
-      reports: {
-          "html": "coverage",
-          "json": {
-              directory: "coverage",
-              filename: "coverage.json"
-          }
-      }
-    },
-
     client: {
-      // leave Jasmine Spec Runner output visible in browser
-      clearContext: false
+      clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
-    files: [
-        { pattern: '**/*.ts' },
-        { pattern: 'database/**/*.test.ts' }
-    ],
-    preprocessors: {
-      '**/*.ts': [ 'karma-typescript' ],
-      'database/**/*.test.ts': [ 'karma-typescript' ]
+    coverageIstanbulReporter: {
+      dir: require('path').join(__dirname, './coverage/paperweight'),
+      reports: ['html', 'lcovonly', 'text-summary'],
+      fixWebpackSourcePaths: true
     },
-    reporters: [ 'spec', 'karma-typescript' ],
+    reporters: ['progress', 'kjhtml'],
+    port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: realBrowser ? [ 'chrome_travis' ] : [ 'Chrome' ],
-    singleRun: realBrowser ? true : false,
-    customLaunchers: {
-        chrome_travis: {
-            base: 'Chrome',
-            flags: [ '--no-sandbox' ]
-        }
-    }
-  })
+    browsers: ['Chrome'],
+    singleRun: false,
+    restartOnFileChange: true
+  });
 };
