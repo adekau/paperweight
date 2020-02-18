@@ -68,7 +68,8 @@ export class ConditionExpression<TSource = never> {
                 filter(([value, control]) => val.predicate(value, control)),
                 (
                     val.once
-                        ? takeWhile(([value, control]) => !val.predicate(value, control), true)
+                        ? takeWhile(([value, control]: [any, AbstractFormControl]) =>
+                            !val.predicate(value, control), true)
                         : identity
                 )
             );

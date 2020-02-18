@@ -35,6 +35,7 @@ export class FormInteractionExpression {
 
         const final$ = obs$
             .pipe(
+                // Not using iif() here from rxjs because type guarding is needed.
                 mergeMapTo(Array.isArray(actions)
                     ? merge(...(actions.map(ac => ac())))
                     : actions()),

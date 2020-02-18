@@ -3,8 +3,8 @@ import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
 import { AbstractFormControl, IFormDraftOptions as IPaperweightOptions } from 'projects/contracts/src/public-api';
 import { deepCompare } from 'projects/utility/src/public-api';
-import { identity, interval, Observable, of, throwError } from 'rxjs';
-import { debounce, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhile, tap } from 'rxjs/operators';
+import { identity, iif, Observable, of, throwError } from 'rxjs';
+import { debounceTime, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 import { FormInteractionExpression } from './form-interaction-expression';
 import { IndexedDBService } from './indexed-db.service';
@@ -60,7 +60,7 @@ export class PaperweightService {
                 switchMap(form => form.valueChanges),
                 (
                     debounceInterval
-                        ? debounce(() => interval(debounceInterval))
+                        ? debounceTime(debounceInterval)
                         // do nothing if debounceInterval = 0
                         : identity
                 )
@@ -86,7 +86,7 @@ export class PaperweightService {
                 switchMap(c => (c as AbstractControl).valueChanges),
                 (
                     debounceInterval
-                        ? debounce(() => interval(debounceInterval))
+                        ? debounceTime(debounceInterval)
                         : identity
                 )
             );
@@ -212,9 +212,11 @@ export class PaperweightService {
             }
 
             return source.pipe(
-                flatMap(all => Object.prototype.hasOwnProperty.call(all[first], 'controls')
-                    ? of((all[first] as AbstractFormGroup).controls)
-                    : throwError('Form control path was expecting a form group.')),
+                flatMap(all => iif(
+                    () => Object.prototype.hasOwnProperty.call(all[first], 'controls'),
+                    of((all[first] as AbstractFormGroup).controls),
+                    throwError('Form control path was expecting a form group.')
+                )),
                 this._resolveFormControl(rest)
             );
         };
@@ -245,10 +247,10 @@ export class PaperweightService {
                 ...(state.subscriptions || {}),
                 [formIdentifier]: form.valueChanges
                     .pipe(
-                        debounce(() => interval(
+                        debounceTime(
                             this._paperweightOptions
                                 ? this._paperweightOptions.debounceInterval
-                                : 3000)
+                                : 3000
                         ),
                         switchMap(v => this.saveDraftAsync(formIdentifier, v))
                     )
