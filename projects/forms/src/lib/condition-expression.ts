@@ -84,7 +84,9 @@ export class ConditionExpression<TSource = never> {
     }
 
     private _transformKey(formName: string, path: string | string[]) {
-        const p = Array.isArray(path) ? path.join('.') : path;
+        const p = Array.isArray(path)
+            ? path.join('.')
+            : path;
         return `${formName}:${p}`;
     }
 }
