@@ -1,4 +1,4 @@
-import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
 import { AbstractFormControl, IPaperweightOptions } from 'projects/contracts/src/public-api';
@@ -8,10 +8,9 @@ import { debounceTime, distinctUntilChanged, flatMap, map, switchMap, takeWhile,
 
 import { FormInteractionExpression } from './form-interaction-expression';
 import { IndexedDBService } from './indexed-db.service';
+import { PAPERWEIGHT_OPTIONS } from './paperweight-options';
 import { FormDraftQuery as PaperweightQuery } from './queries/form-draft.query';
 import { FormDraftStore as PaperweightStore } from './stores/form-draft.store';
-
-export const PAPERWEIGHT_OPTIONS = new InjectionToken<IPaperweightOptions>('FORM_DRAFT_OPTIONS');
 
 @Injectable({
     providedIn: 'root'

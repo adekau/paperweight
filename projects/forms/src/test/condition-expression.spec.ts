@@ -5,7 +5,8 @@ import { IPaperweightOptions } from 'projects/contracts/src/public-api';
 import { Subject } from 'rxjs';
 
 import { ConditionExpression } from '../lib/condition-expression';
-import { PAPERWEIGHT_OPTIONS, PaperweightService } from '../lib/paperweight.service';
+import { PAPERWEIGHT_OPTIONS } from '../lib/paperweight-options';
+import { PaperweightService } from '../lib/paperweight.service';
 import { ConditionExpressionQuery } from '../lib/queries/condition-expression.query';
 import { ConditionExpressionStore } from '../lib/stores/condition-expression.store';
 
