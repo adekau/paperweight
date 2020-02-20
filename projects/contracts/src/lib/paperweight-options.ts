@@ -1,4 +1,4 @@
-export interface IFormDraftOptions {
+export interface IPaperweightOptions {
     /**
      * Debounce on form change (in milliseconds)
      */

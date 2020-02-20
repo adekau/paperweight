@@ -1,10 +1,10 @@
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
-import { AbstractFormControl, IFormDraftOptions as IPaperweightOptions } from 'projects/contracts/src/public-api';
+import { AbstractFormControl, IPaperweightOptions } from 'projects/contracts/src/public-api';
 import { deepCompare } from 'projects/utility/src/public-api';
 import { identity, iif, Observable, of, throwError } from 'rxjs';
-import { debounceTime, distinctUntilChanged, flatMap, map, pluck, switchMap, takeWhile, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, flatMap, map, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 import { FormInteractionExpression } from './form-interaction-expression';
 import { IndexedDBService } from './indexed-db.service';
@@ -97,7 +97,11 @@ export class PaperweightService {
     public getAllFormControls(formName: string): Observable<AbstractFormGroup['controls']> {
         return this._paperweightQuery.getForm(formName)
             .pipe(
-                pluck('controls')
+                flatMap(form => iif(
+                    () => !!form && !!form.controls,
+                    of(form?.controls || {}),
+                    throwError(`Form [${formName}] is not registered or no longer exists.`)
+                ))
             );
     }
 

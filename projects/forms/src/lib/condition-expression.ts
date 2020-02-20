@@ -58,20 +58,24 @@ export class ConditionExpression<TSource = never> {
         return new ConditionExpression<T>(this._store, this._query, this._paperweightService);
     }
 
-    public compile(): Observable<any> {
+    public compile(): Observable<[TSource] extends [never]
+        ? [any, AbstractFormControl]
+        : [TSource, undefined]
+    > {
         const val = this._query.getValue();
 
         return this._query.select()
             .pipe(
                 switchMap(state => state.source$),
                 flatMap(value => combineLatest([of(value), val.control || of(undefined)])),
-                filter(([value, control]) => val.predicate(value, control)),
-                (
-                    val.once
-                        ? takeWhile(([value, control]: [any, AbstractFormControl]) =>
-                            !val.predicate(value, control), true)
-                        : identity
-                )
+                filter(
+                    ([value, control]: [TSource] extends [never] ? [any, AbstractFormControl] : [TSource, undefined]) =>
+                        val.predicate(value, control)
+                ),
+                (val.once
+                    ? takeWhile(([value, control]: [TSource] extends [never] ? [any, AbstractFormControl] : [TSource, undefined]) =>
+                        !val.predicate(value, control), true)
+                    : identity)
             );
     }
 
