@@ -9,8 +9,8 @@ import { debounceTime, distinctUntilChanged, flatMap, map, switchMap, takeWhile,
 import { FormInteractionExpression } from './form-interaction-expression';
 import { IndexedDBService } from './indexed-db.service';
 import { PAPERWEIGHT_OPTIONS } from './paperweight-options';
-import { FormDraftQuery as PaperweightQuery } from './queries/form-draft.query';
-import { FormDraftStore as PaperweightStore } from './stores/form-draft.store';
+import { PaperweightQuery } from './queries/form-draft.query';
+import { PaperweightStore } from './stores/form-draft.store';
 
 @Injectable({
     providedIn: 'root'

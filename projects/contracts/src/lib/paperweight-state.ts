@@ -2,7 +2,7 @@ import { SubscriptionLike } from 'rxjs';
 
 import { AbstractFormGroup } from './abstract-form-group';
 
-export interface IFormDraftState {
+export interface IPaperweightState {
     forms: {
         [k: string]: AbstractFormGroup;
     };

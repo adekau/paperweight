@@ -22,7 +22,7 @@ export class FormInteractionExpression {
     }
 
     public do(
-        condition: (condition: ConditionExpression) => ConditionExpression,
+        condition: (condition: ConditionExpression<never>) => ConditionExpression<unknown>,
         action: (action: ActionFns) => ActionFn | ActionFn[]
     ): this {
         const store = new ConditionExpressionStore();

@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Query } from '@datorama/akita';
-import { AbstractFormGroup, IFormDraftState } from 'projects/contracts/src/public-api';
+import { AbstractFormGroup, IPaperweightState } from 'projects/contracts/src/public-api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { FormDraftStore } from '../stores/form-draft.store';
+import { PaperweightStore } from '../stores/form-draft.store';
 
 @Injectable({
     providedIn: 'root'
 })
-export class FormDraftQuery extends Query<IFormDraftState> {
+export class PaperweightQuery extends Query<IPaperweightState> {
     public forms$ = this.select('forms');
     public subscriptions$ = this.select('subscriptions');
 
     constructor(
-        protected store: FormDraftStore
+        protected store: PaperweightStore
     ) {
         super(store);
     }

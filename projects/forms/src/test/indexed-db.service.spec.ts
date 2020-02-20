@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { IPaperweightOptions } from 'projects/contracts/src/public-api';
-import { switchMap, tap } from 'rxjs/operators';
+import { concatMap, tap } from 'rxjs/operators';
 
 import { IndexedDBService } from '../lib/indexed-db.service';
 import { PAPERWEIGHT_OPTIONS } from '../lib/paperweight-options';
@@ -43,6 +43,19 @@ describe('Forms: IndexedDBService', () => {
 
             expect(idbs.storeName).toEqual('drafts');
         });
+
+        it('should use dbVersion if set', () => {
+            opts.dbVersion = 2;
+            const idbs = TestBed.inject(IndexedDBService);
+
+            expect(idbs.version).toBe(2);
+        });
+
+        it('should default to 1 if dbVersion is not set', () => {
+            const idbs = TestBed.inject(IndexedDBService);
+
+            expect(idbs.version).toBe(1);
+        });
     });
 
     it('should save and retrieve an object', (done) => {
@@ -50,11 +63,11 @@ describe('Forms: IndexedDBService', () => {
 
         idbs.put({ test: 'value' })
             .pipe(
-                switchMap(key => idbs.get(key))
+                concatMap(k => idbs.get(k))
             )
             .subscribe({
-                next: draft => {
-                    expect(draft).toEqual({ test: 'value', id: jasmine.anything() });
+                next: d => {
+                    expect(d).toEqual({ test: 'value', id: jasmine.anything() });
                     done();
                 }
             });
@@ -67,12 +80,12 @@ describe('Forms: IndexedDBService', () => {
         idbs.put({ test: 'value' })
             .pipe(
                 tap(k => key = k),
-                switchMap(k => idbs.delete(k)),
-                switchMap(() => idbs.get(key))
+                concatMap(k => idbs.delete(k)),
+                concatMap(() => idbs.get(key))
             )
             .subscribe({
                 next: d => {
-                    expect(key).toBeDefined();
+                    expect(key).toBeGreaterThan(0);
                     expect(d).toBeUndefined();
                     done();
                 }
