@@ -5,6 +5,7 @@ import { filter, flatMap, switchMap, takeWhile } from 'rxjs/operators';
 import { PaperweightService } from './paperweight.service';
 import { ConditionExpressionQuery } from './queries/condition-expression.query';
 import { ConditionExpressionStore } from './stores/condition-expression.store';
+import { FormNames, PaperweightSchema } from './types';
 
 export type EventPredicate<TSource> = (
     val: TSource
@@ -17,12 +18,12 @@ export type FormPredicate<TSource> = (
         : undefined
 ) => boolean;
 
-export class ConditionExpression<TSource = never> {
+export class ConditionExpression<RegisteredForms extends PaperweightSchema, TSource = never> {
 
     constructor(
         private _store: ConditionExpressionStore,
         private _query: ConditionExpressionQuery,
-        private _paperweightService: PaperweightService
+        private _paperweightService: PaperweightService<RegisteredForms>
     ) { }
 
     public if(
@@ -41,7 +42,10 @@ export class ConditionExpression<TSource = never> {
         return this;
     }
 
-    public from(formName: string, path: string | string[]): this {
+    public from<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        path: string | string[]
+    ): this {
         const control = this._paperweightService.getFormControl(formName, path);
         this._store.update({
             source$: this._paperweightService.getControlValueChanges(control),
@@ -52,10 +56,10 @@ export class ConditionExpression<TSource = never> {
         return this;
     }
 
-    public onEmit<T>(source: Observable<T>): ConditionExpression<T> {
+    public onEmit<T>(source: Observable<T>): ConditionExpression<RegisteredForms, T> {
         this._store.update({ source$: source });
 
-        return new ConditionExpression<T>(this._store, this._query, this._paperweightService);
+        return new ConditionExpression<RegisteredForms, T>(this._store, this._query, this._paperweightService);
     }
 
     public compile(): Observable<[TSource] extends [never]
@@ -83,7 +87,10 @@ export class ConditionExpression<TSource = never> {
         return this._query.getValue().key;
     }
 
-    private _transformKey(formName: string, path: string | string[]) {
+    private _transformKey<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        path: string | string[]
+    ) {
         const p = Array.isArray(path)
             ? path.join('.')
             : path;

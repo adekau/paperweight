@@ -1,8 +1,32 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { PaperweightSchema } from 'projects/forms/src/lib/types';
 import { PaperweightService } from 'projects/forms/src/public-api';
 import { fromEvent, SubscriptionLike } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
+
+interface Form1 {
+    firstName: string;
+    lastName: string;
+    height: {
+        feet: number;
+        inches: number;
+    };
+}
+
+interface Form2 {
+    address: string;
+    phone: string;
+    payment: {
+        dollars: number;
+        cents: number;
+    };
+}
+
+interface MySchema extends PaperweightSchema {
+    'form-1': Form1;
+    'form-2': Form2;
+}
 
 @Component({
     selector: 'app-root',
@@ -17,7 +41,7 @@ export class AppComponent implements OnDestroy {
 
     constructor(
         private _formBuilder: FormBuilder,
-        private _paperweightService: PaperweightService
+        private _paperweightService: PaperweightService<MySchema>
     ) {
         this.form = this._formBuilder.group({
             firstName: [''],
@@ -41,7 +65,7 @@ export class AppComponent implements OnDestroy {
             this._paperweightService.register('form-1', this.form)
                 .pipe(
                     switchMap(name => this._paperweightService.getValueChanges(name)),
-                    switchMap(() => this._paperweightService.getAllDraftsAsync()),
+                    switchMap(_ => this._paperweightService.getDraftAsync('form-1')),
                     tap(v => console.log(v))
                 )
                 .subscribe(),
@@ -49,7 +73,7 @@ export class AppComponent implements OnDestroy {
                 .pipe(
                     switchMap(name => this._paperweightService.getValueChanges(name)),
                     switchMap(() => this._paperweightService.getAllDraftsAsync()),
-                    tap(v => console.log(v))
+                    tap(v => console.log(v.find(v2 => v2.id === 'form-2')))
                 )
                 .subscribe()
         );

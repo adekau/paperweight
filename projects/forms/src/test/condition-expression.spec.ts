@@ -9,16 +9,23 @@ import { PAPERWEIGHT_OPTIONS } from '../lib/paperweight-options';
 import { PaperweightService } from '../lib/paperweight.service';
 import { ConditionExpressionQuery } from '../lib/queries/condition-expression.query';
 import { ConditionExpressionStore } from '../lib/stores/condition-expression.store';
+import { PaperweightSchema } from '../lib/types';
+
+interface TestSchema extends PaperweightSchema {
+    'testform': {
+        'testfield': any;
+    };
+}
 
 describe('Forms: ConditionExpression', () => {
-    let exp: ConditionExpression;
+    let exp: ConditionExpression<TestSchema>;
     let form: FormGroup;
 
     function createExpression() {
-        const pws: PaperweightService = TestBed.inject(PaperweightService);
+        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as unknown as PaperweightService<TestSchema>;
         const store = new ConditionExpressionStore();
         const query = new ConditionExpressionQuery(store);
-        exp = new ConditionExpression(store, query, pws);
+        exp = new ConditionExpression<TestSchema>(store, query, pws);
     }
 
     beforeEach(() => {
@@ -54,7 +61,7 @@ describe('Forms: ConditionExpression', () => {
     });
 
     it('should source from a form component', async(() => {
-        const pws = TestBed.inject(PaperweightService);
+        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as unknown as PaperweightService<TestSchema>;
         createExpression();
 
         exp = exp.from('testform', 'testfield');
@@ -113,7 +120,7 @@ describe('Forms: ConditionExpression', () => {
     }));
 
     it('should complete after one change with "once"', async(() => {
-        const pws = TestBed.inject(PaperweightService);
+        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as unknown as PaperweightService<TestSchema>;
         createExpression();
         const complete = jasmine.createSpy('complete');
         const next = jasmine.createSpy('next');

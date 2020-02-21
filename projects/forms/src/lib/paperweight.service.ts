@@ -11,12 +11,12 @@ import { IndexedDBService } from './indexed-db.service';
 import { PAPERWEIGHT_OPTIONS } from './paperweight-options';
 import { PaperweightQuery } from './queries/form-draft.query';
 import { PaperweightStore } from './stores/form-draft.store';
+import { GetForm, FormDraft, FormNames, PaperweightSchema } from './types';
 
 @Injectable({
     providedIn: 'root'
 })
-export class PaperweightService {
-
+export class PaperweightService<RegisteredForms extends PaperweightSchema = unknown> {
     constructor(
         private _idbService: IndexedDBService,
         private _paperweightStore: PaperweightStore,
@@ -24,19 +24,26 @@ export class PaperweightService {
         @Optional() @Inject(PAPERWEIGHT_OPTIONS) private _paperweightOptions: IPaperweightOptions
     ) { }
 
-    public saveDraftAsync<T>(formIdentifier: string, draft: T): Observable<IDBValidKey> {
+    public saveDraftAsync<TFormName extends FormNames<RegisteredForms>, T>(
+        formIdentifier: TFormName,
+        draft: T
+    ): Observable<IDBValidKey> {
         return this._idbService.put({ id: formIdentifier, ...draft });
     }
 
-    public deleteDraftAsync(formIdentifier: IDBValidKey): Observable<any> {
+    public deleteDraftAsync<TFormName extends FormNames<RegisteredForms>>(
+        formIdentifier: TFormName
+    ): Observable<void> {
         return this._idbService.delete(formIdentifier);
     }
 
-    public getDraftAsync(formIdentifier: IDBValidKey): Observable<any> {
+    public getDraftAsync<TFormName extends FormNames<RegisteredForms>>(
+        formIdentifier: TFormName
+    ): Observable<FormDraft<RegisteredForms, TFormName>> {
         return this._idbService.get(formIdentifier);
     }
 
-    public getAllDraftsAsync(): Observable<any> {
+    public getAllDraftsAsync(): Observable<FormDraft<RegisteredForms, FormNames<RegisteredForms>>[]> {
         return this._idbService.getAll();
     }
 
@@ -44,15 +51,18 @@ export class PaperweightService {
         return this._idbService.clearAll();
     }
 
-    public createExpression(): FormInteractionExpression {
-        return new FormInteractionExpression(this);
+    public createExpression(): FormInteractionExpression<RegisteredForms> {
+        return new FormInteractionExpression<RegisteredForms>(this);
     }
 
     /**
      * Gets a debounced observable emits when the form value changes.
      * @param formName The form's unique identifier
      */
-    public getValueChanges(formName: string, debounceInterval: number = 0): Observable<any> {
+    public getValueChanges<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        debounceInterval: number = 0
+    ): Observable<GetForm<RegisteredForms, TFormName>> {
         return this._paperweightQuery.getForm(formName)
             .pipe(
                 takeWhile(() => this._paperweightQuery.hasFormSync(formName)),
@@ -67,7 +77,11 @@ export class PaperweightService {
             );
     }
 
-    public getControlValueChanges(formName: string, path: string | string[], debounceInterval?: number): Observable<any>;
+    public getControlValueChanges<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        path: string | string[],
+        debounceInterval?: number
+    ): Observable<any>;
     public getControlValueChanges(
         control: Observable<AbstractFormControl> | AbstractFormControl,
         debounceInterval?: number
@@ -93,7 +107,9 @@ export class PaperweightService {
             );
     }
 
-    public getAllFormControls(formName: string): Observable<AbstractFormGroup['controls']> {
+    public getAllFormControls<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName
+    ): Observable<AbstractFormGroup['controls']> {
         return this._paperweightQuery.getForm(formName)
             .pipe(
                 flatMap(form => iif(
@@ -104,7 +120,10 @@ export class PaperweightService {
             );
     }
 
-    public getFormControl(formName: string, path: string | string[]): Observable<AbstractFormControl> {
+    public getFormControl<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        path: string | string[]
+    ): Observable<AbstractFormControl> {
         return this.getAllFormControls(formName)
             .pipe(
                 this._resolveFormControl(path),
@@ -112,7 +131,12 @@ export class PaperweightService {
             );
     }
 
-    public setDisabled(formName: string, path: string | string[], disabled: boolean, emitEvent?: boolean): Observable<AbstractFormControl>;
+    public setDisabled<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        path: string | string[],
+        disabled: boolean,
+        emitEvent?: boolean
+    ): Observable<AbstractFormControl>;
     public setDisabled(control: AbstractFormControl, disabled: boolean, emitEvent?: boolean): Observable<AbstractFormControl>;
     public setDisabled(...args: any[]): Observable<AbstractFormControl> {
         const control = this._formControlOrResolve(...args);
@@ -135,7 +159,11 @@ export class PaperweightService {
             );
     }
 
-    public setValue<T>(formName: string, path: string | string[], value: T): Observable<AbstractFormControl>;
+    public setValue<TFormName extends FormNames<RegisteredForms>, T>(
+        formName: TFormName,
+        path: string | string[],
+        value: T
+    ): Observable<AbstractFormControl>;
     public setValue<T>(control: AbstractFormControl, value: T): Observable<AbstractFormControl>;
     public setValue(...args: any[]): Observable<AbstractFormControl> {
         const control = this._formControlOrResolve(...args);
@@ -152,7 +180,11 @@ export class PaperweightService {
             );
     }
 
-    public reset<T = never>(formName: string, path: string | string[], value?: T): Observable<AbstractFormControl>;
+    public reset<TFormName extends FormNames<RegisteredForms>, T = never>(
+        formName: TFormName,
+        path: string | string[],
+        value?: T
+    ): Observable<AbstractFormControl>;
     public reset<T = never>(control: AbstractFormControl, value?: T): Observable<AbstractFormControl>;
     public reset(...args: any[]): Observable<AbstractFormControl> {
         const control = this._formControlOrResolve(...args);
@@ -169,7 +201,10 @@ export class PaperweightService {
             );
     }
 
-    public isRequired(formName: string, path: string | string[]): Observable<boolean>;
+    public isRequired<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        path: string | string[]
+    ): Observable<boolean>;
     public isRequired(control: AbstractFormControl): Observable<boolean>;
     public isRequired(...args: any[]): Observable<boolean> {
         const control = this._formControlOrResolve(...args);
@@ -183,8 +218,8 @@ export class PaperweightService {
             );
     }
 
-    public setValidators(
-        formName: string,
+    public setValidators<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
         path: string | string[],
         validators: ValidatorFn | ValidatorFn[]
     ): Observable<AbstractFormControl>;
@@ -228,14 +263,17 @@ export class PaperweightService {
 
     private _formControlOrResolve(...args: any[]): Observable<AbstractFormControl> {
         if (typeof args[0] === 'string')
-            return this.getFormControl(args[0], args[1]);
+            return this.getFormControl(args[0] as any, args[1] as any);
         else if (args[0] instanceof Observable)
             return args[0];
         else
             return of(args[0]);
     }
 
-    public register(formIdentifier: string, form: AbstractFormGroup): Observable<string> {
+    public register<TId extends FormNames<RegisteredForms>>(
+        formIdentifier: TId,
+        form: AbstractFormGroup
+    ): Observable<TId> {
         if (this._paperweightQuery.hasFormSync(formIdentifier)) {
             console.warn('A form has already been registered with identifier', formIdentifier);
             return throwError('A form has already been registered with identifier' + formIdentifier);
@@ -266,7 +304,9 @@ export class PaperweightService {
             );
     }
 
-    public unregister(formIdentifier: string): Observable<void> {
+    public unregister<TId extends FormNames<RegisteredForms>>(
+        formIdentifier: TId
+    ): Observable<void> {
         if (!this._paperweightQuery.hasFormSync(formIdentifier)) {
             console.warn('No form is registered with identifier', formIdentifier);
             return throwError('No form is registered with identifier' + formIdentifier);

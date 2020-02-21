@@ -9,25 +9,26 @@ import { ConditionExpressionQuery } from './queries/condition-expression.query';
 import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
 import { ConditionExpressionStore } from './stores/condition-expression.store';
 import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
+import { FormNames, PaperweightSchema } from './types';
 
-export class FormInteractionExpression {
+export class FormInteractionExpression<RegisteredForms extends PaperweightSchema> {
     private _store: FormInteractionExpressionStore;
     private _query: FormInteractionExpressionQuery;
 
     constructor(
-        private _paperweightService: PaperweightService
+        private _paperweightService: PaperweightService<RegisteredForms>
     ) {
         this._store = new FormInteractionExpressionStore();
         this._query = new FormInteractionExpressionQuery(this._store);
     }
 
     public do(
-        condition: (condition: ConditionExpression<never>) => ConditionExpression<unknown>,
+        condition: (condition: ConditionExpression<RegisteredForms, never>) => ConditionExpression<RegisteredForms, unknown>,
         action: (action: ActionFns) => ActionFn | ActionFn[]
     ): this {
         const store = new ConditionExpressionStore();
         const query = new ConditionExpressionQuery(store);
-        const cond = condition(new ConditionExpression(store, query, this._paperweightService));
+        const cond = condition(new ConditionExpression<RegisteredForms>(store, query, this._paperweightService));
         const actions = action(this._actionFns());
         const key = cond.getKey();
         const obs$ = cond.compile();
@@ -66,8 +67,8 @@ export class FormInteractionExpression {
 
     private _actionFns(): ActionFns {
         return {
-            setDisabled: (
-                formName: string,
+            setDisabled: <TFormName extends FormNames<RegisteredForms>>(
+                formName: TFormName,
                 path: string | string[],
                 disabled: boolean
             ) => () => {
@@ -79,8 +80,8 @@ export class FormInteractionExpression {
                     );
             },
 
-            setValue: <T>(
-                formName: string,
+            setValue: <TFormName extends FormNames<RegisteredForms>, T>(
+                formName: TFormName,
                 path: string | string[],
                 value: T
             ) => () => {
@@ -92,8 +93,8 @@ export class FormInteractionExpression {
                     );
             },
 
-            reset: <T = never>(
-                formName: string,
+            reset: <TFormName extends FormNames<RegisteredForms>, T = never>(
+                formName: TFormName,
                 path: string | string[],
                 value?: T
             ) => () => {
@@ -105,8 +106,8 @@ export class FormInteractionExpression {
                     );
             },
 
-            setValidators: (
-                formName: string,
+            setValidators: <TFormName extends FormNames<RegisteredForms>>(
+                formName: TFormName,
                 path: string | string[],
                 validators: ValidatorFn | ValidatorFn[]
             ) => () => {
