@@ -65,7 +65,7 @@ export class AppComponent implements OnDestroy {
             this._paperweightService.register('form-1', this.form)
                 .pipe(
                     switchMap(name => this._paperweightService.getValueChanges(name)),
-                    switchMap(_ => this._paperweightService.getDraftAsync('form-1')),
+                    switchMap(() => this._paperweightService.getDraftAsync('form-1')),
                     tap(v => console.log(v))
                 )
                 .subscribe(),

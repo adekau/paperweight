@@ -57,7 +57,7 @@ export class FormInteractionExpression<RegisteredForms extends PaperweightSchema
         }));
     }
 
-    public compile(): Observable<any> {
+    public compile(): Observable<never> {
         const observers = this._query.getObserversSync();
         return merge(...Object.values(observers))
             .pipe(
