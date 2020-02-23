@@ -272,6 +272,17 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
     /**
      * Emits a the form control with new value.
      * @param formName Name of the registered form in Paperweight.
+     * @param controlResolver Function chain to resolve a form control in a strong-typed way from the form schema interface.
+     * @param value The value to set the form control to.
+     */
+    public setValue<TFormName extends FormNames<RegisteredForms>, T>(
+        formName: TFormName,
+        controlResolver: (resolver: ControlResolver<RegisteredForms[TFormName]>) => ControlResolver<T>,
+        value: T
+    ): Observable<AbstractFormControl>;
+    /**
+     * Emits a the form control with new value.
+     * @param formName Name of the registered form in Paperweight.
      * @param path `.` separated path to the form control, e.g. `height.feet`
      * @param value The value to set the form control to.
      */
@@ -301,6 +312,17 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Emits a form control with reset value.
+     * @param formName Name of the registered form in Paperweight.
+     * @param controlResolver Function chain to resolve a form control in a strong-typed way from the form schema interface.
+     * @param value Optional value to reset the form to.
+     */
+    public reset<TFormName extends FormNames<RegisteredForms>, T = never>(
+        formName: TFormName,
+        controlResolver: (resolver: ControlResolver<RegisteredForms[TFormName]>) => ControlResolver<T>,
+        value?: T
+    ): Observable<AbstractFormControl>;
     /**
      * Emits a form control with reset value.
      * @param formName Name of the registered form in Paperweight.
@@ -336,6 +358,15 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
     /**
      * Emits a boolean for whether the form control is required.
      * @param formName Name of the registered form in Paperweight.
+     * @param controlResolver Function chain to resolve a form control in a strong-typed way from the form schema interface.
+     */
+    public isRequired<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        controlResolver: (resolver: ControlResolver<RegisteredForms[TFormName]>) => ControlResolver<unknown>,
+    ): Observable<boolean>;
+    /**
+     * Emits a boolean for whether the form control is required.
+     * @param formName Name of the registered form in Paperweight.
      * @param path `.` separated path to the form control, e.g. `height.feet`
      */
     public isRequired<TFormName extends FormNames<RegisteredForms>>(
@@ -359,6 +390,17 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Sets (and overwrites) the current validators for a form control.
+     * @param formName Name of the registered form in Paperweight.
+     * @param controlResolver Function chain to resolve a form control in a strong-typed way from the form schema interface.
+     * @param validators A ValidatorFn or array of ValidatorFns.
+     */
+    public setValidators<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        controlResolver: (resolver: ControlResolver<RegisteredForms[TFormName]>) => ControlResolver<unknown>,
+        validators: ValidatorFn | ValidatorFn[]
+    ): Observable<AbstractFormControl>;
     /**
      * Sets (and overwrites) the current validators for a form control.
      * @param formName Name of the registered form in Paperweight.
