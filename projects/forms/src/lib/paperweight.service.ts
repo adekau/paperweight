@@ -24,6 +24,11 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
         @Optional() @Inject(PAPERWEIGHT_OPTIONS) private _paperweightOptions: IPaperweightOptions
     ) { }
 
+    /**
+     * Saves a draft in the database and returns an observable that emits the unique id it saved with.
+     * @param formIdentifier The identifier to store the form as in the database.
+     * @param draft The form state
+     */
     public saveDraftAsync<TFormName extends FormNames<RegisteredForms>, T>(
         formIdentifier: TFormName,
         draft: T
@@ -36,22 +41,36 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Deletes the stored draft for a form.
+     * @param formIdentifier Name of the form to delete the current draft for.
+     */
     public deleteDraftAsync<TFormName extends FormNames<RegisteredForms>>(
         formIdentifier: TFormName
     ): Observable<void> {
         return this._idbService.delete(formIdentifier);
     }
 
+    /**
+     * Emits the stored draft for a form.
+     * @param formIdentifier Name of the form to get the current draft for.
+     */
     public getDraftAsync<TFormName extends FormNames<RegisteredForms>>(
         formIdentifier: TFormName
     ): Observable<FormDraft<RegisteredForms, TFormName>> {
         return this._idbService.get(formIdentifier);
     }
 
+    /**
+     * Emits all drafts in the database as an array.
+     */
     public getAllDraftsAsync(): Observable<FormDraft<RegisteredForms, FormNames<RegisteredForms>>[]> {
         return this._idbService.getAll();
     }
 
+    /**
+     * Clears all drafts stored in the database.
+     */
     public clearAllDrafts(): Observable<void> {
         return this._idbService.clearAll();
     }
@@ -65,7 +84,8 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
      * @param formName Name of a registered form.
      */
     public loadDraft<TFormName extends FormNames<RegisteredForms>>(
-        formName: TFormName
+        formName: TFormName,
+        opts?: { emitEvent: boolean; }
     ): Observable<void> {
         return this._paperweightQuery.getForm(formName)
             .pipe(
@@ -75,7 +95,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
                         ...draft
                     }, {
                         onlySelf: true,
-                        emitEvent: false
+                        ...(opts || { emitEvent: false })
                     }))
                 )
             );
