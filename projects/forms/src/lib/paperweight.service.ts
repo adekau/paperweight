@@ -136,11 +136,22 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Returns an observable that emits on an optional debounce timer with changes in a form control's value.
+     * @param formName Name of the form registered in Paperweight.
+     * @param path `.` separated path to the form control, e.g. `height.feet`
+     * @param debounceInterval Number (in milliseconds) interval to debounce the emissions from the observable.
+     */
     public getControlValueChanges<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName,
         path: string | string[],
         debounceInterval?: number
     ): Observable<any>;
+    /**
+     * Returns an observable that emits on an optional debounce timer with changes in a form control's value.
+     * @param control A form control to debounce valueChanges on.
+     * @param debounceInterval Number (in milliseconds) interval to debounce the emissions from the observable.
+     */
     public getControlValueChanges(
         control: Observable<AbstractFormControl> | AbstractFormControl,
         debounceInterval?: number
@@ -166,6 +177,10 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Emits an object keyed by the name of the form control.
+     * @param formName The registered form name in Paperweight.
+     */
     public getAllFormControls<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName
     ): Observable<AbstractFormGroup['controls']> {
@@ -179,6 +194,11 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Emits the a form control.
+     * @param formName Name of the registered form in Paperweight.
+     * @param path `.` separated path to the form control, e.g. `height.feet`
+     */
     public getFormControl<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName,
         path: string | string[]
@@ -190,12 +210,25 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Observable that returns the form control in a disabled or enabled state.
+     * @param formName Name of the registered form in Paperweight.
+     * @param path `.` separated path to the form control, e.g. `height.feet`
+     * @param disabled Boolean of whether to set it to disabled or enabled.
+     * @param emitEvent Boolean of whether to emit on the valueChange observable.
+     */
     public setDisabled<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName,
         path: string | string[],
         disabled: boolean,
         emitEvent?: boolean
     ): Observable<AbstractFormControl>;
+    /**
+     * Observable that returns the form control in a disabled or enabled state.
+     * @param control A form control enable or disable.
+     * @param disabled Boolean of whether to set it to disabled or enabled.
+     * @param emitEvent Boolean of whether to emit on the valueChange observable.
+     */
     public setDisabled(control: AbstractFormControl, disabled: boolean, emitEvent?: boolean): Observable<AbstractFormControl>;
     public setDisabled(...args: any[]): Observable<AbstractFormControl> {
         const control = this._formControlOrResolve(...args);
@@ -218,11 +251,22 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Emits a the form control with new value.
+     * @param formName Name of the registered form in Paperweight.
+     * @param path `.` separated path to the form control, e.g. `height.feet`
+     * @param value The value to set the form control to.
+     */
     public setValue<TFormName extends FormNames<RegisteredForms>, T>(
         formName: TFormName,
         path: string | string[],
         value: T
     ): Observable<AbstractFormControl>;
+    /**
+     * Emits a the form control with new value.
+     * @param control A form control set the value of.
+     * @param value The value to set the form control to.
+     */
     public setValue<T>(control: AbstractFormControl, value: T): Observable<AbstractFormControl>;
     public setValue(...args: any[]): Observable<AbstractFormControl> {
         const control = this._formControlOrResolve(...args);
@@ -239,11 +283,22 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Emits a form control with reset value.
+     * @param formName Name of the registered form in Paperweight.
+     * @param path `.` separated path to the form control, e.g. `height.feet`
+     * @param value Optional value to reset the form to.
+     */
     public reset<TFormName extends FormNames<RegisteredForms>, T = never>(
         formName: TFormName,
         path: string | string[],
         value?: T
     ): Observable<AbstractFormControl>;
+        /**
+     * Emits a form control with reset value.
+     * @param control A form control to reset the value of.
+     * @param value Optional value to reset the form to.
+     */
     public reset<T = never>(control: AbstractFormControl, value?: T): Observable<AbstractFormControl>;
     public reset(...args: any[]): Observable<AbstractFormControl> {
         const control = this._formControlOrResolve(...args);
@@ -260,10 +315,19 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Emits a boolean for whether the form control is required.
+     * @param formName Name of the registered form in Paperweight.
+     * @param path `.` separated path to the form control, e.g. `height.feet`
+     */
     public isRequired<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName,
         path: string | string[]
     ): Observable<boolean>;
+    /**
+     * Emits a boolean for whether the form control is required.
+     * @param control The form control to test.
+     */
     public isRequired(control: AbstractFormControl): Observable<boolean>;
     public isRequired(...args: any[]): Observable<boolean> {
         const control = this._formControlOrResolve(...args);
@@ -277,11 +341,22 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Sets (and overwrites) the current validators for a form control.
+     * @param formName Name of the registered form in Paperweight.
+     * @param path `.` separated path to the form control, e.g. `height.feet`
+     * @param validators A ValidatorFn or array of ValidatorFns.
+     */
     public setValidators<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName,
         path: string | string[],
         validators: ValidatorFn | ValidatorFn[]
     ): Observable<AbstractFormControl>;
+    /**
+     * Sets (and overwrites) the current validators for a form control.
+     * @param control The form control to set the validators on.
+     * @param validators A ValidatorFn or array of ValidatorFns.
+     */
     public setValidators(control: AbstractFormControl, validators: ValidatorFn | ValidatorFn[]): Observable<AbstractFormControl>;
     public setValidators(...args: any[]): Observable<AbstractFormControl> {
         const control: Observable<AbstractFormControl> = this._formControlOrResolve(...args);
@@ -329,6 +404,11 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             return of(args[0]);
     }
 
+    /**
+     *
+     * @param formIdentifier The unique name of the form to register.
+     * @param form The form group to register in the service.
+     */
     public register<TId extends FormNames<RegisteredForms>>(
         formIdentifier: TId,
         form: AbstractFormGroup
@@ -363,6 +443,10 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Unregisters a form group from the Paperweight service and cancels automatic draft saving.
+     * @param formIdentifier The name of the form to remove from the service.
+     */
     public unregister<TId extends FormNames<RegisteredForms>>(
         formIdentifier: TId
     ): Observable<void> {
@@ -395,6 +479,9 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
             );
     }
 
+    /**
+     * Returns an array of every form registered in the service.
+     */
     public getRegisteredForms(): Observable<AbstractFormGroup[]> {
         return this._paperweightQuery.forms$
             .pipe(
