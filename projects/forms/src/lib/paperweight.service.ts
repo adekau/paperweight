@@ -297,7 +297,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
 
         return control
             .pipe(
-                tap(con => (con as AbstractControl).setValue(value))
+                tap(con => (con as AbstractControl)?.setValue(value))
             );
     }
 
