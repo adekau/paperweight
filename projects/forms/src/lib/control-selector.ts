@@ -8,13 +8,8 @@ export interface Selector<TObj> {
 
 export function safeGet<TObj>(obj: TObj) {
     return function r<TProp extends keyof TObj>(k: TProp): Selector<TObj[TProp]> {
-        if (!obj[k])
-            return Object.assign(
-                safeGet({}),
-                { value: undefined }
-            );
         return Object.assign(
-            safeGet(obj[k]),
+            safeGet(obj[k] || {}),
             { value: obj[k] }
         );
     }

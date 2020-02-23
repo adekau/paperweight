@@ -9,5 +9,4 @@ export { IPaperweightOptions } from './lib/paperweight-options';
 export { IPaperweightState } from './lib/paperweight-state';
 export { IStaticCompressor } from './lib/compressor-like';
 export { IFormInteractionExpressionState } from './lib/form-interaction-expression-state';
-export { ActionFns } from './lib/action-fns';
 export { IDraftSaveEvent } from './lib/draft-save-event';

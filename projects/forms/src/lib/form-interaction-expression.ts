@@ -1,4 +1,3 @@
-import { ActionFns } from 'projects/contracts/src/public-api';
 import { merge, Observable, of } from 'rxjs';
 import { ignoreElements, mergeMapTo } from 'rxjs/operators';
 
@@ -23,12 +22,12 @@ export class FormInteractionExpression<RegisteredForms extends PaperweightSchema
 
     public do(
         condition: (condition: ConditionExpression<RegisteredForms, never>) => ConditionExpression<RegisteredForms, unknown>,
-        action: (action: ActionFns) => Observable<any> | Observable<any>[]
+        action: (pws: PaperweightService<RegisteredForms>) => Observable<any> | Observable<any>[]
     ): this {
         const store = new ConditionExpressionStore();
         const query = new ConditionExpressionQuery(store);
         const cond = condition(new ConditionExpression<RegisteredForms>(store, query, this._paperweightService));
-        const actions = action(this._actionFns());
+        const actions = action(this._paperweightService);
         const key = cond.getKey();
         const obs$ = cond.compile();
         const existing$ = this._query.getObserversSync()[key] || of();
@@ -62,14 +61,5 @@ export class FormInteractionExpression<RegisteredForms extends PaperweightSchema
             .pipe(
                 ignoreElements()
             );
-    }
-
-    private _actionFns(): ActionFns {
-        return {
-            setDisabled: this._paperweightService.setDisabled.bind(this._paperweightService),
-            setValue: this._paperweightService.setValue.bind(this._paperweightService),
-            reset: this._paperweightService.reset.bind(this._paperweightService),
-            setValidators: this._paperweightService.setValidators.bind(this._paperweightService)
-        };
     }
 }

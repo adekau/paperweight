@@ -1,6 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { control } from 'projects/forms/src/lib/control-selector';
 import { PaperweightService } from 'projects/forms/src/public-api';
 import { fromEvent, SubscriptionLike } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -83,7 +82,7 @@ export class AppComponent implements OnDestroy {
         const expression = this._paperweightService.createExpression()
             .do(c => c.onEmit(fromEvent(document, 'click')),
                 action => [
-                    action.setValue('form-1', 'height.feet', 300)
+                    action.setValue('form-1', r => r('height')('feet'), 300)
                 ])
             .do(c => c.from('form-1', 'firstName').if(v => v === 'Alex'),
                 action => action.setValue('form-1', 'lastName', 'Dekau'))
@@ -98,14 +97,12 @@ export class AppComponent implements OnDestroy {
             .do(c => c.onEmit(fromEvent(document, 'click')).if(ev => ev.isTrusted),
                 action => action.setValue('form-2', 'payment.cents', 400))
             .do(c => c.from('form-2', 'phone').if((_, control) => control.valid),
-                ac => ac.reset('form-2', 'payment.dollars'))
+                ac => ac.reset('form-2', 'payment.dollars'));
 
         this._subscriptions.push(
             expression.compile().subscribe(),
             expression2.compile().subscribe()
         );
-
-        console.log(control<MySchema['form-1']>(this.form)('height')('feet').resolve);
     }
 
     public onSubmit(data: any): void {
