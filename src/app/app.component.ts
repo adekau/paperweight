@@ -1,6 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PaperweightSchema } from 'projects/forms/src/lib/types';
 import { PaperweightService } from 'projects/forms/src/public-api';
 import { fromEvent, SubscriptionLike } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -23,7 +22,7 @@ interface Form2 {
     };
 }
 
-interface MySchema extends PaperweightSchema {
+interface MySchema {
     'form-1': Form1;
     'form-2': Form2;
 }
@@ -64,14 +63,16 @@ export class AppComponent implements OnDestroy {
         this._subscriptions.push(
             this._paperweightService.register('form-1', this.form)
                 .pipe(
-                    switchMap(name => this._paperweightService.getValueChanges(name)),
+                    // switchMap(name => this._paperweightService.loadDraft(name)),
+                    switchMap(() => this._paperweightService.getValueChanges('form-1')),
                     switchMap(() => this._paperweightService.getDraftAsync('form-1')),
                     tap(v => console.log(v))
                 )
                 .subscribe(),
             this._paperweightService.register('form-2', this.form2)
                 .pipe(
-                    switchMap(name => this._paperweightService.getValueChanges(name)),
+                    // switchMap(name => this._paperweightService.loadDraft(name)),
+                    switchMap(() => this._paperweightService.getValueChanges('form-2')),
                     switchMap(() => this._paperweightService.getAllDraftsAsync()),
                     tap(v => console.log(v.find(v2 => v2.id === 'form-2')))
                 )
@@ -97,7 +98,7 @@ export class AppComponent implements OnDestroy {
             .do(c => c.onEmit(fromEvent(document, 'click')).if(ev => ev.isTrusted),
                 action => action.setValue('form-2', 'payment.cents', 400))
             .do(c => c.from('form-2', 'phone').if((_, control) => control.valid),
-                ac => ac.reset('form-2', 'payment.dollars'));
+                ac => ac.reset('form-2', 'payment.dollars'))
 
         this._subscriptions.push(
             expression.compile().subscribe(),
@@ -111,6 +112,12 @@ export class AppComponent implements OnDestroy {
 
     public toggle(): void {
         this.show ^= 1;
+    }
+
+    public load(formName: 'form-1' | 'form-2') {
+        this._subscriptions.push(
+            this._paperweightService.loadDraft(formName).subscribe()
+        )
     }
 
     public async ngOnDestroy(): Promise<void> {

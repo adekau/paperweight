@@ -1,6 +1,7 @@
-import { SubscriptionLike } from 'rxjs';
+import { Subject, SubscriptionLike } from 'rxjs';
 
 import { AbstractFormGroup } from './abstract-form-group';
+import { IDraftSaveEvent } from './draft-save-event';
 
 export interface IPaperweightState {
     forms: {
@@ -10,4 +11,6 @@ export interface IPaperweightState {
     subscriptions: {
         [k: string]: SubscriptionLike
     };
+
+    draftSave$: Subject<IDraftSaveEvent>;
 }

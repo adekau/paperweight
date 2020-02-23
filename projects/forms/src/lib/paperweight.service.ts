@@ -1,17 +1,17 @@
 import { Inject, Injectable, Optional } from '@angular/core';
-import { AbstractControl, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
-import { AbstractFormControl, IPaperweightOptions } from 'projects/contracts/src/public-api';
+import { AbstractFormControl, IDraftSaveEvent, IPaperweightOptions } from 'projects/contracts/src/public-api';
 import { deepCompare } from 'projects/utility/src/public-api';
-import { identity, iif, Observable, of, throwError } from 'rxjs';
-import { debounceTime, distinctUntilChanged, flatMap, map, switchMap, takeWhile, tap } from 'rxjs/operators';
+import { combineLatest, identity, iif, Observable, of, throwError } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, flatMap, map, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 import { FormInteractionExpression } from './form-interaction-expression';
 import { IndexedDBService } from './indexed-db.service';
 import { PAPERWEIGHT_OPTIONS } from './paperweight-options';
 import { PaperweightQuery } from './queries/form-draft.query';
 import { PaperweightStore } from './stores/form-draft.store';
-import { GetForm, FormDraft, FormNames, PaperweightSchema } from './types';
+import { FormDraft, FormNames, GetForm, PaperweightSchema } from './types';
 
 @Injectable({
     providedIn: 'root'
@@ -28,7 +28,12 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
         formIdentifier: TFormName,
         draft: T
     ): Observable<IDBValidKey> {
-        return this._idbService.put({ id: formIdentifier, ...draft });
+        return this._idbService.put({ id: formIdentifier, ...draft })
+            .pipe(
+                tap(() => this._paperweightQuery.getValue().draftSave$.next({
+                    formName: formIdentifier
+                }))
+            );
     }
 
     public deleteDraftAsync<TFormName extends FormNames<RegisteredForms>>(
@@ -53,6 +58,40 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
 
     public createExpression(): FormInteractionExpression<RegisteredForms> {
         return new FormInteractionExpression<RegisteredForms>(this);
+    }
+
+    /**
+     * Returns an observable that, when subscribed to, loads the current saved draft into the form.
+     * @param formName Name of a registered form.
+     */
+    public loadDraft<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName
+    ): Observable<void> {
+        return this._paperweightQuery.getForm(formName)
+            .pipe(
+                switchMap(form => combineLatest([of(form), this.getDraftAsync(formName)])),
+                map(([form, draft]: [FormGroup, FormDraft<RegisteredForms, TFormName>]) =>
+                    (delete draft.id, (form as FormGroup).patchValue({
+                        ...draft
+                    }, {
+                        onlySelf: true,
+                        emitEvent: false
+                    }))
+                )
+            );
+    }
+
+    /**
+     * Returns an observable that emits when a draft for form `formName` is saved.
+     * @param formName Name of a registered form
+     */
+    draftSaves<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName
+    ): Observable<IDraftSaveEvent> {
+        return this._paperweightQuery.getValue().draftSave$
+            .pipe(
+                filter(ev => ev.formName === formName)
+            );
     }
 
     /**

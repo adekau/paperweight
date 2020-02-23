@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
 import { IPaperweightState } from 'projects/contracts/src/public-api';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +11,8 @@ export class PaperweightStore extends Store<IPaperweightState> {
     constructor() {
         super({
             forms: {},
-            subscriptions: {}
+            subscriptions: {},
+            draftSave$: new Subject()
         });
     }
 }

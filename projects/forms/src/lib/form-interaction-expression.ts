@@ -1,7 +1,6 @@
-import { ValidatorFn } from '@angular/forms';
-import { ActionFn, ActionFns } from 'projects/contracts/src/public-api';
+import { ActionFns } from 'projects/contracts/src/public-api';
 import { merge, Observable, of } from 'rxjs';
-import { flatMap, ignoreElements, mergeMapTo } from 'rxjs/operators';
+import { ignoreElements, mergeMapTo } from 'rxjs/operators';
 
 import { ConditionExpression } from './condition-expression';
 import { PaperweightService } from './paperweight.service';
@@ -9,7 +8,7 @@ import { ConditionExpressionQuery } from './queries/condition-expression.query';
 import { FormInteractionExpressionQuery } from './queries/form-interaction-expression.query';
 import { ConditionExpressionStore } from './stores/condition-expression.store';
 import { FormInteractionExpressionStore } from './stores/form-interaction-expression.store';
-import { FormNames, PaperweightSchema } from './types';
+import { PaperweightSchema } from './types';
 
 export class FormInteractionExpression<RegisteredForms extends PaperweightSchema> {
     private _store: FormInteractionExpressionStore;
@@ -24,7 +23,7 @@ export class FormInteractionExpression<RegisteredForms extends PaperweightSchema
 
     public do(
         condition: (condition: ConditionExpression<RegisteredForms, never>) => ConditionExpression<RegisteredForms, unknown>,
-        action: (action: ActionFns) => ActionFn | ActionFn[]
+        action: (action: ActionFns) => Observable<any> | Observable<any>[]
     ): this {
         const store = new ConditionExpressionStore();
         const query = new ConditionExpressionQuery(store);
@@ -38,8 +37,8 @@ export class FormInteractionExpression<RegisteredForms extends PaperweightSchema
             .pipe(
                 // Not using iif() here from rxjs because type guarding is needed.
                 mergeMapTo(Array.isArray(actions)
-                    ? merge(...(actions.map(ac => ac())))
-                    : actions()),
+                    ? merge(...actions)
+                    : actions),
                 mergeMapTo(existing$)
             );
 
@@ -67,57 +66,10 @@ export class FormInteractionExpression<RegisteredForms extends PaperweightSchema
 
     private _actionFns(): ActionFns {
         return {
-            setDisabled: <TFormName extends FormNames<RegisteredForms>>(
-                formName: TFormName,
-                path: string | string[],
-                disabled: boolean
-            ) => () => {
-                const control = this._paperweightService.getFormControl(formName, path);
-
-                return control
-                    .pipe(
-                        flatMap(c => this._paperweightService.setDisabled(c, disabled))
-                    );
-            },
-
-            setValue: <TFormName extends FormNames<RegisteredForms>, T>(
-                formName: TFormName,
-                path: string | string[],
-                value: T
-            ) => () => {
-                const control = this._paperweightService.getFormControl(formName, path);
-
-                return control
-                    .pipe(
-                        flatMap(c => this._paperweightService.setValue(c, value))
-                    );
-            },
-
-            reset: <TFormName extends FormNames<RegisteredForms>, T = never>(
-                formName: TFormName,
-                path: string | string[],
-                value?: T
-            ) => () => {
-                const control = this._paperweightService.getFormControl(formName, path);
-
-                return control
-                    .pipe(
-                        flatMap(c => this._paperweightService.reset(c, value))
-                    );
-            },
-
-            setValidators: <TFormName extends FormNames<RegisteredForms>>(
-                formName: TFormName,
-                path: string | string[],
-                validators: ValidatorFn | ValidatorFn[]
-            ) => () => {
-                const control = this._paperweightService.getFormControl(formName, path);
-
-                return control
-                    .pipe(
-                        flatMap(c => this._paperweightService.setValidators(c, validators))
-                    );
-            }
+            setDisabled: this._paperweightService.setDisabled.bind(this._paperweightService),
+            setValue: this._paperweightService.setValue.bind(this._paperweightService),
+            reset: this._paperweightService.reset.bind(this._paperweightService),
+            setValidators: this._paperweightService.setValidators.bind(this._paperweightService)
         };
     }
 }

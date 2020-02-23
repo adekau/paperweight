@@ -1,29 +1,8 @@
-import { ValidatorFn } from '@angular/forms';
-
-import { ActionFn } from './action-fn';
+import { PaperweightService } from 'projects/forms/src/public-api';
 
 export interface ActionFns {
-    setDisabled: (
-        formName: string,
-        path: string | string[],
-        disabled: boolean
-    ) => ActionFn;
-
-    setValue: <T>(
-        formName: string,
-        path: string | string[],
-        value: T
-    ) => ActionFn;
-
-    reset: <T = never>(
-        formName: string,
-        path: string | string[],
-        value?: T
-    ) => ActionFn;
-
-    setValidators: (
-        formName: string,
-        path: string | string[],
-        validators: ValidatorFn | ValidatorFn[]
-    ) => ActionFn;
+    setDisabled: PaperweightService['setDisabled'];
+    setValue: PaperweightService['setValue'];
+    reset: PaperweightService['reset'];
+    setValidators: PaperweightService['setValidators'];
 }
