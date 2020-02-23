@@ -12,6 +12,7 @@ import { PAPERWEIGHT_OPTIONS } from './paperweight-options';
 import { PaperweightQuery } from './queries/form-draft.query';
 import { PaperweightStore } from './stores/form-draft.store';
 import { FormDraft, FormNames, GetForm, PaperweightSchema } from './types';
+import { ControlResolver, control } from './control-selector';
 
 @Injectable({
     providedIn: 'root'
@@ -213,6 +214,19 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
     /**
      * Observable that returns the form control in a disabled or enabled state.
      * @param formName Name of the registered form in Paperweight.
+     * @param controlResolver Function chain to resolve a form control in a strong-typed way from the form schema interface.
+     * @param disabled Boolean of whether to set it to disabled or enabled.
+     * @param emitEvent Boolean of whether to emit on the valueChange observable.
+     */
+    public setDisabled<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName,
+        controlResolver: (resolver: ControlResolver<RegisteredForms[TFormName]>) => ControlResolver<unknown>,
+        disabled: boolean,
+        emitEvent?: boolean
+    ): Observable<AbstractFormControl>;
+    /**
+     * Observable that returns the form control in a disabled or enabled state.
+     * @param formName Name of the registered form in Paperweight.
      * @param path `.` separated path to the form control, e.g. `height.feet`
      * @param disabled Boolean of whether to set it to disabled or enabled.
      * @param emitEvent Boolean of whether to emit on the valueChange observable.
@@ -229,7 +243,11 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
      * @param disabled Boolean of whether to set it to disabled or enabled.
      * @param emitEvent Boolean of whether to emit on the valueChange observable.
      */
-    public setDisabled(control: AbstractFormControl, disabled: boolean, emitEvent?: boolean): Observable<AbstractFormControl>;
+    public setDisabled(
+        control: AbstractFormControl,
+        disabled: boolean,
+        emitEvent?: boolean
+    ): Observable<AbstractFormControl>;
     public setDisabled(...args: any[]): Observable<AbstractFormControl> {
         const control = this._formControlOrResolve(...args);
         let disabled: boolean;
@@ -245,6 +263,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
 
         return control
             .pipe(
+                tap(con => console.log(con)),
                 tap(con => (con as AbstractControl)[disabled ? 'disable' : 'enable']({
                     emitEvent
                 }))
@@ -396,12 +415,21 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
     }
 
     private _formControlOrResolve(...args: any[]): Observable<AbstractFormControl> {
-        if (typeof args[0] === 'string')
-            return this.getFormControl(args[0] as any, args[1] as any);
+        if (typeof args[0] === 'string' && typeof args[1] === 'string')
+            return this.getFormControl(args[0] as any, args[1]);
+        else if (typeof args[0] === 'string' && this._isControlResolver(args[1]))
+            return this._paperweightQuery.getForm(args[0])
+                .pipe(
+                    map(form => args[1](control(form as FormGroup)).resolve)
+                );
         else if (args[0] instanceof Observable)
             return args[0];
         else
             return of(args[0]);
+    }
+
+    private _isControlResolver(v: unknown): v is ControlResolver<unknown> {
+        return typeof v === 'function';
     }
 
     /**

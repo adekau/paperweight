@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { control } from 'projects/forms/src/lib/control-selector';
 import { PaperweightService } from 'projects/forms/src/public-api';
 import { fromEvent, SubscriptionLike } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -63,15 +64,14 @@ export class AppComponent implements OnDestroy {
         this._subscriptions.push(
             this._paperweightService.register('form-1', this.form)
                 .pipe(
-                    // switchMap(name => this._paperweightService.loadDraft(name)),
                     switchMap(() => this._paperweightService.getValueChanges('form-1')),
+                    switchMap(() => this._paperweightService.setDisabled('form-2', c => c('address'), true)),
                     switchMap(() => this._paperweightService.getDraftAsync('form-1')),
                     tap(v => console.log(v))
                 )
                 .subscribe(),
             this._paperweightService.register('form-2', this.form2)
                 .pipe(
-                    // switchMap(name => this._paperweightService.loadDraft(name)),
                     switchMap(() => this._paperweightService.getValueChanges('form-2')),
                     switchMap(() => this._paperweightService.getAllDraftsAsync()),
                     tap(v => console.log(v.find(v2 => v2.id === 'form-2')))
@@ -82,7 +82,6 @@ export class AppComponent implements OnDestroy {
         const expression = this._paperweightService.createExpression()
             .do(c => c.onEmit(fromEvent(document, 'click')),
                 action => [
-                    action.setDisabled('form-1', 'height.inches', true),
                     action.setValue('form-1', 'height.feet', 300)
                 ])
             .do(c => c.from('form-1', 'firstName').if(v => v === 'Alex'),
@@ -104,6 +103,8 @@ export class AppComponent implements OnDestroy {
             expression.compile().subscribe(),
             expression2.compile().subscribe()
         );
+
+        console.log(control<MySchema['form-1']>(this.form)('height')('feet').resolve);
     }
 
     public onSubmit(data: any): void {
