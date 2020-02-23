@@ -263,7 +263,6 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
 
         return control
             .pipe(
-                tap(con => console.log(con)),
                 tap(con => (con as AbstractControl)[disabled ? 'disable' : 'enable']({
                     emitEvent
                 }))

@@ -76,7 +76,8 @@ export class AppComponent implements OnDestroy {
                     switchMap(() => this._paperweightService.getAllDraftsAsync()),
                     tap(v => console.log(v.find(v2 => v2.id === 'form-2')))
                 )
-                .subscribe()
+                .subscribe(),
+            this._paperweightService.setDisabled('form-2', r => r('payment')('cents'), true).subscribe()
         );
 
         const expression = this._paperweightService.createExpression()
