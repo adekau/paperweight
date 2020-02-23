@@ -3,27 +3,31 @@ import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
 import { AbstractFormGroup } from 'projects/contracts/src/lib/abstract-form-group';
 import { AbstractFormControl, IDraftSaveEvent, IPaperweightOptions } from 'projects/contracts/src/public-api';
 import { deepCompare } from 'projects/utility/src/public-api';
-import { combineLatest, identity, iif, Observable, of, throwError } from 'rxjs';
+import { combineLatest, identity, iif, Observable, of, Subject, throwError } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, flatMap, map, switchMap, takeWhile, tap } from 'rxjs/operators';
 
+import { control, ControlResolver } from './control-selector';
 import { FormInteractionExpression } from './form-interaction-expression';
 import { IndexedDBService } from './indexed-db.service';
 import { PAPERWEIGHT_OPTIONS } from './paperweight-options';
 import { PaperweightQuery } from './queries/form-draft.query';
 import { PaperweightStore } from './stores/form-draft.store';
 import { FormDraft, FormNames, GetForm, PaperweightSchema } from './types';
-import { ControlResolver, control } from './control-selector';
 
 @Injectable({
     providedIn: 'root'
 })
 export class PaperweightService<RegisteredForms extends PaperweightSchema = unknown> {
+    private _draftSaves$: Subject<IDraftSaveEvent>;
+
     constructor(
         private _idbService: IndexedDBService,
         private _paperweightStore: PaperweightStore,
         private _paperweightQuery: PaperweightQuery,
         @Optional() @Inject(PAPERWEIGHT_OPTIONS) private _paperweightOptions: IPaperweightOptions
-    ) { }
+    ) {
+        this._draftSaves$ = new Subject();
+    }
 
     /**
      * Saves a draft in the database and returns an observable that emits the unique id it saved with.
@@ -36,7 +40,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
     ): Observable<IDBValidKey> {
         return this._idbService.put({ id: formIdentifier, ...draft })
             .pipe(
-                tap(() => this._paperweightQuery.getValue().draftSave$.next({
+                tap(() => this._draftSaves$.next({
                     formName: formIdentifier
                 }))
             );
@@ -109,7 +113,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
     draftSaves<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName
     ): Observable<IDraftSaveEvent> {
-        return this._paperweightQuery.getValue().draftSave$
+        return this._draftSaves$
             .pipe(
                 filter(ev => ev.formName === formName)
             );

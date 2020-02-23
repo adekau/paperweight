@@ -61,6 +61,14 @@ export class AppComponent implements OnDestroy {
         });
 
         this._subscriptions.push(
+            this._paperweightService.draftSaves('form-1')
+                .pipe(
+                    tap(draft => console.warn(draft))
+                )
+                .subscribe()
+        );
+
+        this._subscriptions.push(
             this._paperweightService.register('form-1', this.form)
                 .pipe(
                     switchMap(() => this._paperweightService.getValueChanges('form-1')),
