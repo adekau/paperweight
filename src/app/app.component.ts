@@ -121,10 +121,10 @@ export class AppComponent implements OnDestroy {
         this.show ^= 1;
     }
 
-    public load(formName: 'form-1' | 'form-2') {
+    public load(formName: keyof MySchema) {
         this._subscriptions.push(
             this._paperweightService.loadDraft(formName).subscribe()
-        )
+        );
     }
 
     public async ngOnDestroy(): Promise<void> {

@@ -22,7 +22,7 @@ describe('Forms: ConditionExpression', () => {
     let form: FormGroup;
 
     function createExpression() {
-        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as unknown as PaperweightService<TestSchema>;
+        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as any;
         const store = new ConditionExpressionStore();
         const query = new ConditionExpressionQuery(store);
         exp = new ConditionExpression<TestSchema>(store, query, pws);
@@ -61,7 +61,7 @@ describe('Forms: ConditionExpression', () => {
     });
 
     it('should source from a form component', async(() => {
-        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as unknown as PaperweightService<TestSchema>;
+        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as any;
         createExpression();
 
         exp = exp.from('testform', 'testfield');
@@ -120,7 +120,7 @@ describe('Forms: ConditionExpression', () => {
     }));
 
     it('should complete after one change with "once"', async(() => {
-        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as unknown as PaperweightService<TestSchema>;
+        const pws: PaperweightService<TestSchema> = TestBed.inject(PaperweightService) as any;
         createExpression();
         const complete = jasmine.createSpy('complete');
         const next = jasmine.createSpy('next');

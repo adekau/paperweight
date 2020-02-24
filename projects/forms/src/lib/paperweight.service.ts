@@ -92,7 +92,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
         formName: TFormName,
         opts?: { emitEvent: boolean; }
     ): Observable<void> {
-        return this._paperweightQuery.getForm(formName)
+        return this.getForm(formName)
             .pipe(
                 switchMap(form => combineLatest([of(form), this.getDraftAsync(formName)])),
                 map(([form, draft]: [FormGroup, FormDraft<RegisteredForms, TFormName>]) =>
@@ -127,7 +127,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
         formName: TFormName,
         debounceInterval: number = 0
     ): Observable<GetForm<RegisteredForms, TFormName>> {
-        return this._paperweightQuery.getForm(formName)
+        return this.getForm(formName)
             .pipe(
                 takeWhile(() => this._paperweightQuery.hasFormSync(formName)),
                 switchMap(form => form.valueChanges),
@@ -162,7 +162,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
         debounceInterval?: number
     ): Observable<any>;
     public getControlValueChanges(...args: any[]): Observable<any> {
-        const control = this._formControlOrResolve(...args);
+        const ctrl = this._formControlOrResolve(...args);
         let debounceInterval: number;
 
         if (typeof args[0] === 'string')
@@ -170,9 +170,9 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
         else
             debounceInterval = args[1] || 0;
 
-        return control
+        return ctrl
             .pipe(
-                switchMap(c => (c as AbstractControl).valueChanges),
+                switchMap(c => (c as AbstractControl)?.valueChanges),
                 (
                     debounceInterval
                         ? debounceTime(debounceInterval)
@@ -189,13 +189,22 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
     public getAllFormControls<TFormName extends FormNames<RegisteredForms>>(
         formName: TFormName
     ): Observable<AbstractFormGroup['controls']> {
-        return this._paperweightQuery.getForm(formName)
+        return this.getForm(formName)
             .pipe(
                 flatMap(form => iif(
                     () => !!form && !!form.controls,
                     of(form?.controls || {}),
                     throwError(`Form [${formName}] is not registered or no longer exists.`)
                 ))
+            );
+    }
+
+    public getForm<TFormName extends FormNames<RegisteredForms>>(
+        formName: TFormName
+    ): Observable<AbstractFormGroup> {
+        return this._paperweightQuery.getForm(formName)
+            .pipe(
+                distinctUntilChanged(deepCompare())
             );
     }
 
@@ -415,7 +424,7 @@ export class PaperweightService<RegisteredForms extends PaperweightSchema = unkn
         if (typeof args[0] === 'string' && typeof args[1] === 'string')
             return this.getFormControl(args[0] as any, args[1]);
         else if (typeof args[0] === 'string' && this._isControlResolver(args[1]))
-            return this._paperweightQuery.getForm(args[0])
+            return this.getForm(args[0] as any)
                 .pipe(
                     map(form => args[1](control(form as FormGroup)).resolve)
                 );
