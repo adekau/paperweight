@@ -93,7 +93,7 @@ export class AppComponent implements OnDestroy {
                     action.setValue('form-1', r => r('height')('feet'), 300)
                 ])
             .do(c => c.from('form-1', 'firstName').if(v => v === 'Alex'),
-                action => action.setValue('form-1', 'lastName', 'Dekau'))
+                action => action.setValue('form-2', r => r('address'), 'Dekau'))
             .do(c => c.if(v => v > 200).from('form-1', 'height.feet').once(),
                 action => action.setValue('form-1', 'firstName', 'Bob'));
 
@@ -105,7 +105,7 @@ export class AppComponent implements OnDestroy {
             .do(c => c.onEmit(fromEvent(document, 'click')).if(ev => ev.isTrusted),
                 action => action.setValue('form-2', 'payment.cents', 400))
             .do(c => c.from('form-2', 'phone').if((_, control) => control.valid),
-                ac => ac.reset('form-2', 'payment.dollars'));
+                ac => ac.reset('form-2', r => r('payment')('dollars')));
 
         this._subscriptions.push(
             expression.compile().subscribe(),
